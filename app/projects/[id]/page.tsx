@@ -5,13 +5,13 @@ import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { projectsData, contactsData } from "@/lib/data"
 import { ArrowLeft, Mail, Phone } from "lucide-react"
 import { LayoutWrapper } from "@/components/layout-wrapper"
 import { ProjectTimeline } from "@/components/project-timeline"
 import { EditProjectDialog } from "@/components/edit-project-dialog"
 import { DeleteProjectDialog } from "@/components/delete-project-dialog"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 
 const pipelineColors: Record<string, string> = {
   scouting: "bg-slate-100 text-slate-800",
@@ -45,23 +45,63 @@ const paymentStatusColors: Record<string, string> = {
 
 export default function ProjectDetailPage() {
   const params = useParams()
-  const projectId = Number.parseInt(params.id as string)
+  const router = useRouter()
+  const projectId = params.id as string
+  const [currentProject, setCurrentProject] = useState<any>(null)
+  const [projectMilestones, setProjectMilestones] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [projectContacts, setProjectContacts] = useState<any[]>([])
 
-  const [currentProject, setCurrentProject] = useState(projectsData.find((p) => p.id === projectId))
-  const [projectMilestones, setProjectMilestones] = useState(currentProject?.milestones || [])
+  useEffect(() => {
+    const fetchProject = async () => {
+      try {
+        const response = await fetch(`/api/projects/${projectId}`)
+        if (response.ok) {
+          const project = await response.json()
+          setCurrentProject(project)
+          setProjectMilestones(project.milestones || [])
+        }
+      } catch (error) {
+        console.error("Error fetching project:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
 
-  const projectContacts = contactsData.filter((c) => c.projectName === currentProject?.name)
+    fetchProject()
+  }, [projectId])
 
   const handleAddMilestone = (newMilestone: any) => {
     setProjectMilestones([...projectMilestones, newMilestone])
   }
 
-  const handleSaveProject = (updatedProject: any) => {
-    setCurrentProject(updatedProject)
-    const index = projectsData.findIndex((p) => p.id === projectId)
-    if (index !== -1) {
-      projectsData[index] = updatedProject
+  const handleSaveProject = () => {
+    // Refresh project data after update
+    const fetchProject = async () => {
+      try {
+        const response = await fetch(`/api/projects/${projectId}`)
+        if (response.ok) {
+          const project = await response.json()
+          setCurrentProject(project)
+        }
+      } catch (error) {
+        console.error("Error fetching project:", error)
+      }
     }
+
+    fetchProject()
+  }
+
+  const handleDeleteProject = () => {
+    router.push("/projects")
+  }
+
+  if (loading) {
+    return (
+      <LayoutWrapper>
+        <div className="p-8 text-center text-muted-foreground">Loading project...</div>
+      </LayoutWrapper>
+    )
   }
 
   if (!currentProject) {
@@ -116,7 +156,11 @@ export default function ProjectDetailPage() {
           {/* Edit and Delete Buttons */}
           <div className="flex gap-2">
             <EditProjectDialog project={currentProject} onSave={handleSaveProject} />
-            <DeleteProjectDialog projectId={currentProject.id} projectName={currentProject.name} />
+            <DeleteProjectDialog
+              projectId={currentProject._id}
+              projectName={currentProject.name}
+              onDelete={handleDeleteProject}
+            />
           </div>
         </div>
 

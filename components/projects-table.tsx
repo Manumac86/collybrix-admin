@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { projectsData } from "@/lib/data"
+import { useProjects } from "@/lib/hooks/use-projects"
 import { Search, MoreHorizontal } from "lucide-react"
 import { AddProjectDialog } from "./add-project-dialog"
 import { EditProjectDialog } from "./edit-project-dialog"
@@ -45,9 +45,10 @@ const paymentStatusColors: Record<string, string> = {
 
 export function ProjectsTable() {
   const [searchTerm, setSearchTerm] = useState("")
-  const [projects, setProjects] = useState(projectsData)
+  const { projects, isLoading, error, mutate } = useProjects()
 
   const filteredProjects = useMemo(() => {
+    if (!projects) return []
     return projects.filter(
       (project) =>
         project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -56,17 +57,19 @@ export function ProjectsTable() {
   }, [searchTerm, projects])
 
   const handleSaveProject = (updatedProject: any) => {
-    const index = projects.findIndex((p) => p.id === updatedProject.id)
-    if (index !== -1) {
-      const newProjects = [...projects]
-      newProjects[index] = updatedProject
-      setProjects(newProjects)
-    }
+    mutate()
   }
 
   const handleDeleteProject = () => {
-    // Re-filter projects after deletion
-    setProjects([...projectsData])
+    mutate()
+  }
+
+  if (error) {
+    return (
+      <div className="p-8">
+        <p className="text-red-500">Error loading projects. Please try again.</p>
+      </div>
+    )
   }
 
   return (
@@ -76,7 +79,7 @@ export function ProjectsTable() {
           <h1 className="text-3xl font-bold text-foreground">Projects</h1>
           <p className="text-muted-foreground mt-2">Manage and track all your projects</p>
         </div>
-        <AddProjectDialog />
+        <AddProjectDialog onSuccess={mutate} />
       </div>
 
       <div className="relative">
@@ -112,79 +115,95 @@ export function ProjectsTable() {
                 </tr>
               </thead>
               <tbody>
-                {filteredProjects.map((project) => (
-                  <tr key={project.id} className="border-b border-border hover:bg-muted/50 transition-colors">
-                    <td className="py-3 px-4">
-                      <Link href={`/projects/${project.id}`} className="hover:underline font-medium">
-                        {project.name}
-                      </Link>
-                    </td>
-                    <td className="py-3 px-4">
-                      <Link href={`/projects/${project.id}`} className="hover:text-primary">
-                        {project.company}
-                      </Link>
-                    </td>
-                    <td className="py-3 px-4">
-                      <Link href={`/projects/${project.id}`}>
-                        <Badge className={`${pipelineColors[project.pipelineState] || "bg-gray-100 text-gray-800"}`}>
-                          {project.pipelineState}
-                        </Badge>
-                      </Link>
-                    </td>
-                    <td className="py-3 px-4">
-                      <Link href={`/projects/${project.id}`}>
-                        <Badge className={projectTypeColors[project.projectType] || "bg-gray-100 text-gray-800"}>
-                          {project.projectType}
-                        </Badge>
-                      </Link>
-                    </td>
-                    <td className="py-3 px-4 text-muted-foreground">
-                      <Link href={`/projects/${project.id}`}>{new Date(project.startedDate).toLocaleDateString()}</Link>
-                    </td>
-                    <td className="py-3 px-4 text-right font-medium">
-                      <Link href={`/projects/${project.id}`}>€{project.initialPricing.toLocaleString()}</Link>
-                    </td>
-                    <td className="py-3 px-4 text-right font-medium">
-                      <Link href={`/projects/${project.id}`}>
-                        {project.finalPrice ? `€${project.finalPrice.toLocaleString()}` : "-"}
-                      </Link>
-                    </td>
-                    <td className="py-3 px-4 text-right font-medium">
-                      <Link href={`/projects/${project.id}`}>€{(project.mmr || 0).toLocaleString()}</Link>
-                    </td>
-                    <td className="py-3 px-4">
-                      <Link href={`/projects/${project.id}`}>
-                        <Badge className={paymentStatusColors[project.paymentStatus] || "bg-gray-100 text-gray-800"}>
-                          {project.paymentStatus}
-                        </Badge>
-                      </Link>
-                    </td>
-                    <td className="py-3 px-4">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <MoreHorizontal className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem asChild>
-                            <EditProjectDialog project={project} onSave={handleSaveProject} />
-                          </DropdownMenuItem>
-                          <DropdownMenuItem asChild>
-                            <Link href={`/projects/${project.id}`}>View Details</Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem asChild>
-                            <DeleteProjectDialog
-                              projectId={project.id}
-                              projectName={project.name}
-                              onDelete={handleDeleteProject}
-                            />
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={10} className="py-8 text-center text-muted-foreground">
+                      Loading projects...
                     </td>
                   </tr>
-                ))}
+                ) : filteredProjects.length === 0 ? (
+                  <tr>
+                    <td colSpan={10} className="py-8 text-center text-muted-foreground">
+                      No projects found
+                    </td>
+                  </tr>
+                ) : (
+                  filteredProjects.map((project) => (
+                    <tr key={project._id} className="border-b border-border hover:bg-muted/50 transition-colors">
+                      <td className="py-3 px-4">
+                        <Link href={`/projects/${project._id}`} className="hover:underline font-medium">
+                          {project.name}
+                        </Link>
+                      </td>
+                      <td className="py-3 px-4">
+                        <Link href={`/projects/${project._id}`} className="hover:text-primary">
+                          {project.company}
+                        </Link>
+                      </td>
+                      <td className="py-3 px-4">
+                        <Link href={`/projects/${project._id}`}>
+                          <Badge className={`${pipelineColors[project.pipelineState] || "bg-gray-100 text-gray-800"}`}>
+                            {project.pipelineState}
+                          </Badge>
+                        </Link>
+                      </td>
+                      <td className="py-3 px-4">
+                        <Link href={`/projects/${project._id}`}>
+                          <Badge className={projectTypeColors[project.projectType] || "bg-gray-100 text-gray-800"}>
+                            {project.projectType}
+                          </Badge>
+                        </Link>
+                      </td>
+                      <td className="py-3 px-4 text-muted-foreground">
+                        <Link href={`/projects/${project._id}`}>
+                          {new Date(project.startedDate).toLocaleDateString()}
+                        </Link>
+                      </td>
+                      <td className="py-3 px-4 text-right font-medium">
+                        <Link href={`/projects/${project._id}`}>€{project.initialPricing.toLocaleString()}</Link>
+                      </td>
+                      <td className="py-3 px-4 text-right font-medium">
+                        <Link href={`/projects/${project._id}`}>
+                          {project.finalPrice ? `€${project.finalPrice.toLocaleString()}` : "-"}
+                        </Link>
+                      </td>
+                      <td className="py-3 px-4 text-right font-medium">
+                        <Link href={`/projects/${project._id}`}>€{(project.mmr || 0).toLocaleString()}</Link>
+                      </td>
+                      <td className="py-3 px-4">
+                        <Link href={`/projects/${project._id}`}>
+                          <Badge className={paymentStatusColors[project.paymentStatus] || "bg-gray-100 text-gray-800"}>
+                            {project.paymentStatus}
+                          </Badge>
+                        </Link>
+                      </td>
+                      <td className="py-3 px-4">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreHorizontal className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem asChild>
+                              <EditProjectDialog project={project} onSave={handleSaveProject} />
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                              <Link href={`/projects/${project._id}`}>View Details</Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                              <DeleteProjectDialog
+                                projectId={project._id}
+                                projectName={project.name}
+                                onDelete={handleDeleteProject}
+                              />
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

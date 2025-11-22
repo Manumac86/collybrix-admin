@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
@@ -36,8 +35,13 @@ const pipelineStates = [
 const projectTypes = ["Accelleration", "Software Factory", "Consulting", "SaaS"]
 const paymentStatuses = ["paid", "partial", "pending"]
 
-export function AddProjectDialog() {
+interface AddProjectDialogProps {
+  onSuccess?: () => void
+}
+
+export function AddProjectDialog({ onSuccess }: AddProjectDialogProps) {
   const [open, setOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     name: "",
     company: "",
@@ -47,23 +51,51 @@ export function AddProjectDialog() {
     finalPrice: "",
     mmr: "",
     paymentStatus: "pending",
+    description: "",
+    docsLink: "",
+    status: "Active",
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Add project to database/state management
-    console.log("New project:", formData)
-    setOpen(false)
-    setFormData({
-      name: "",
-      company: "",
-      pipelineState: "scouting",
-      projectType: "Software Factory",
-      initialPricing: "",
-      finalPrice: "",
-      mmr: "",
-      paymentStatus: "pending",
-    })
+    setLoading(true)
+
+    try {
+      const response = await fetch("/api/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...formData,
+          initialPricing: Number(formData.initialPricing),
+          finalPrice: formData.finalPrice ? Number(formData.finalPrice) : null,
+          mmr: formData.mmr ? Number(formData.mmr) : null,
+          startedDate: new Date().toISOString(),
+          milestones: [],
+        }),
+      })
+
+      if (response.ok) {
+        setOpen(false)
+        setFormData({
+          name: "",
+          company: "",
+          pipelineState: "scouting",
+          projectType: "Software Factory",
+          initialPricing: "",
+          finalPrice: "",
+          mmr: "",
+          paymentStatus: "pending",
+          description: "",
+          docsLink: "",
+          status: "Active",
+        })
+        onSuccess?.()
+      }
+    } catch (error) {
+      console.error("Error creating project:", error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -81,7 +113,6 @@ export function AddProjectDialog() {
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
-            {/* Project Name */}
             <div className="space-y-2">
               <Label htmlFor="name">Project Name *</Label>
               <Input
@@ -93,7 +124,6 @@ export function AddProjectDialog() {
               />
             </div>
 
-            {/* Company */}
             <div className="space-y-2">
               <Label htmlFor="company">Company *</Label>
               <Input
@@ -105,7 +135,6 @@ export function AddProjectDialog() {
               />
             </div>
 
-            {/* Pipeline State */}
             <div className="space-y-2">
               <Label htmlFor="pipeline">Pipeline State *</Label>
               <Select
@@ -125,7 +154,6 @@ export function AddProjectDialog() {
               </Select>
             </div>
 
-            {/* Project Type */}
             <div className="space-y-2">
               <Label htmlFor="type">Project Type *</Label>
               <Select
@@ -145,7 +173,6 @@ export function AddProjectDialog() {
               </Select>
             </div>
 
-            {/* Initial Pricing */}
             <div className="space-y-2">
               <Label htmlFor="initialPrice">Initial Pricing (€) *</Label>
               <Input
@@ -158,7 +185,6 @@ export function AddProjectDialog() {
               />
             </div>
 
-            {/* Final Price */}
             <div className="space-y-2">
               <Label htmlFor="finalPrice">Final Price (€)</Label>
               <Input
@@ -170,7 +196,6 @@ export function AddProjectDialog() {
               />
             </div>
 
-            {/* MMR */}
             <div className="space-y-2">
               <Label htmlFor="mmr">MMR (€)</Label>
               <Input
@@ -182,7 +207,6 @@ export function AddProjectDialog() {
               />
             </div>
 
-            {/* Payment Status */}
             <div className="space-y-2">
               <Label htmlFor="payment">Payment Status *</Label>
               <Select
@@ -203,11 +227,34 @@ export function AddProjectDialog() {
             </div>
           </div>
 
+          <div className="space-y-2">
+            <Label htmlFor="description">Description</Label>
+            <textarea
+              id="description"
+              className="w-full px-3 py-2 border border-input rounded-md text-sm"
+              rows={3}
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="docsLink">Documentation Link</Label>
+            <Input
+              id="docsLink"
+              type="url"
+              value={formData.docsLink}
+              onChange={(e) => setFormData({ ...formData, docsLink: e.target.value })}
+            />
+          </div>
+
           <div className="flex justify-end gap-3 pt-4">
-            <Button variant="outline" onClick={() => setOpen(false)} type="button">
+            <Button variant="outline" onClick={() => setOpen(false)} type="button" disabled={loading}>
               Cancel
             </Button>
-            <Button type="submit">Create Project</Button>
+            <Button type="submit" disabled={loading}>
+              {loading ? "Creating..." : "Create Project"}
+            </Button>
           </div>
         </form>
       </DialogContent>

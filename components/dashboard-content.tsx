@@ -1,7 +1,7 @@
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { projectsData } from "@/lib/data"
+import { useProjects } from "@/lib/hooks/use-projects"
 import {
   BarChart,
   Bar,
@@ -19,10 +19,20 @@ import {
 } from "recharts"
 
 export function DashboardContent() {
+  const { projects, isLoading } = useProjects()
+
+  if (isLoading || !projects) {
+    return (
+      <div className="p-8">
+        <p className="text-muted-foreground">Loading dashboard...</p>
+      </div>
+    )
+  }
+
   // Calculate metrics
-  const totalMMR = projectsData.reduce((sum, p) => sum + (p.mmr || 0), 0)
-  const inProgressProjects = projectsData.filter((p) => p.pipelineState === "in progress").length
-  const upcomingProjects = projectsData.filter((p) =>
+  const totalMMR = projects.reduce((sum, p) => sum + (p.mmr || 0), 0)
+  const inProgressProjects = projects.filter((p) => p.pipelineState === "in progress").length
+  const upcomingProjects = projects.filter((p) =>
     [
       "scouting",
       "initial contact",
@@ -36,7 +46,7 @@ export function DashboardContent() {
       "closing",
     ].includes(p.pipelineState),
   ).length
-  const finishedProjects = projectsData.filter((p) => p.pipelineState === "finished").length
+  const finishedProjects = projects.filter((p) => p.pipelineState === "finished").length
 
   // Monthly revenue data (example)
   const monthlyRevenueData = [
@@ -50,10 +60,10 @@ export function DashboardContent() {
 
   // Project type distribution
   const projectTypeData = [
-    { name: "Software Factory", value: projectsData.filter((p) => p.projectType === "Software Factory").length },
-    { name: "Accelleration", value: projectsData.filter((p) => p.projectType === "Accelleration").length },
-    { name: "Consulting", value: projectsData.filter((p) => p.projectType === "Consulting").length },
-    { name: "SaaS", value: projectsData.filter((p) => p.projectType === "SaaS").length },
+    { name: "Software Factory", value: projects.filter((p) => p.projectType === "Software Factory").length },
+    { name: "Accelleration", value: projects.filter((p) => p.projectType === "Accelleration").length },
+    { name: "Consulting", value: projects.filter((p) => p.projectType === "Consulting").length },
+    { name: "SaaS", value: projects.filter((p) => p.projectType === "SaaS").length },
   ]
 
   const colors = [
@@ -184,27 +194,27 @@ export function DashboardContent() {
               data={[
                 {
                   stage: "Scouting",
-                  count: projectsData.filter((p) => p.pipelineState === "scouting").length,
+                  count: projects.filter((p) => p.pipelineState === "scouting").length,
                 },
                 {
                   stage: "Qualification",
-                  count: projectsData.filter((p) => p.pipelineState === "qualification").length,
+                  count: projects.filter((p) => p.pipelineState === "qualification").length,
                 },
                 {
                   stage: "Discovery",
-                  count: projectsData.filter((p) => p.pipelineState === "discovery").length,
+                  count: projects.filter((p) => p.pipelineState === "discovery").length,
                 },
                 {
                   stage: "Evaluation",
-                  count: projectsData.filter((p) => p.pipelineState === "technical evaluation").length,
+                  count: projects.filter((p) => p.pipelineState === "technical evaluation").length,
                 },
                 {
                   stage: "In Progress",
-                  count: projectsData.filter((p) => p.pipelineState === "in progress").length,
+                  count: projects.filter((p) => p.pipelineState === "in progress").length,
                 },
                 {
                   stage: "Finished",
-                  count: projectsData.filter((p) => p.pipelineState === "finished").length,
+                  count: projects.filter((p) => p.pipelineState === "finished").length,
                 },
               ]}
             >

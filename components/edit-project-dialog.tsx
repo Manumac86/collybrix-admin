@@ -36,7 +36,7 @@ const projectTypes = ["Accelleration", "Software Factory", "Consulting", "SaaS"]
 const paymentStatuses = ["paid", "partial", "pending"]
 
 interface Project {
-  id: number
+  _id: string
   name: string
   company: string
   pipelineState: string
@@ -53,11 +53,12 @@ interface Project {
 
 interface EditProjectDialogProps {
   project: Project
-  onSave: (updatedProject: Project) => void
+  onSave: () => void
 }
 
 export function EditProjectDialog({ project, onSave }: EditProjectDialogProps) {
   const [open, setOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     name: project.name,
     company: project.company,
@@ -72,24 +73,31 @@ export function EditProjectDialog({ project, onSave }: EditProjectDialogProps) {
     docsLink: project.docsLink,
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    const updatedProject: Project = {
-      ...project,
-      name: formData.name,
-      company: formData.company,
-      pipelineState: formData.pipelineState,
-      projectType: formData.projectType,
-      initialPricing: Number(formData.initialPricing),
-      finalPrice: formData.finalPrice ? Number(formData.finalPrice) : null,
-      mmr: formData.mmr ? Number(formData.mmr) : null,
-      paymentStatus: formData.paymentStatus,
-      status: formData.status,
-      description: formData.description,
-      docsLink: formData.docsLink,
+    setLoading(true)
+
+    try {
+      const response = await fetch(`/api/projects/${project._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...formData,
+          initialPricing: Number(formData.initialPricing),
+          finalPrice: formData.finalPrice ? Number(formData.finalPrice) : null,
+          mmr: formData.mmr ? Number(formData.mmr) : null,
+        }),
+      })
+
+      if (response.ok) {
+        setOpen(false)
+        onSave()
+      }
+    } catch (error) {
+      console.error("Error updating project:", error)
+    } finally {
+      setLoading(false)
     }
-    onSave(updatedProject)
-    setOpen(false)
   }
 
   return (
@@ -238,10 +246,12 @@ export function EditProjectDialog({ project, onSave }: EditProjectDialogProps) {
           </div>
 
           <div className="flex justify-end gap-3 pt-4">
-            <Button variant="outline" onClick={() => setOpen(false)} type="button">
+            <Button variant="outline" onClick={() => setOpen(false)} type="button" disabled={loading}>
               Cancel
             </Button>
-            <Button type="submit">Save Changes</Button>
+            <Button type="submit" disabled={loading}>
+              {loading ? "Saving..." : "Save Changes"}
+            </Button>
           </div>
         </form>
       </DialogContent>
