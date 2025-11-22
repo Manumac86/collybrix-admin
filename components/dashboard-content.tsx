@@ -66,12 +66,22 @@ export function DashboardContent() {
     { name: "SaaS", value: projects.filter((p) => p.projectType === "SaaS").length },
   ]
 
-  const colors = [
+  const chartColors = [
     "hsl(var(--color-chart-1))",
     "hsl(var(--color-chart-2))",
     "hsl(var(--color-chart-3))",
     "hsl(var(--color-chart-4))",
+    "hsl(var(--color-chart-5))",
   ]
+
+  const pipelineColors = {
+    Scouting: chartColors[0],
+    Qualification: chartColors[1],
+    Discovery: chartColors[2],
+    Evaluation: chartColors[3],
+    "In Progress": chartColors[4],
+    Finished: "hsl(var(--color-primary))",
+  }
 
   return (
     <div className="p-8 space-y-8">
@@ -135,17 +145,26 @@ export function DashboardContent() {
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={monthlyRevenueData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip formatter={(value) => `€${value.toLocaleString()}`} />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--color-border))" />
+                <XAxis dataKey="month" stroke="hsl(var(--color-muted-foreground))" />
+                <YAxis stroke="hsl(var(--color-muted-foreground))" />
+                <Tooltip
+                  formatter={(value) => `€${value.toLocaleString()}`}
+                  contentStyle={{
+                    backgroundColor: "hsl(var(--color-card))",
+                    border: "1px solid hsl(var(--color-border))",
+                    borderRadius: "8px",
+                  }}
+                />
                 <Legend />
                 <Line
                   type="monotone"
                   dataKey="revenue"
                   stroke="hsl(var(--color-primary))"
-                  strokeWidth={2}
+                  strokeWidth={3}
                   name="Revenue (€)"
+                  dot={{ fill: "hsl(var(--color-primary))", r: 5 }}
+                  activeDot={{ r: 7 }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -171,11 +190,17 @@ export function DashboardContent() {
                   fill="#8884d8"
                   dataKey="value"
                 >
-                  {colors.map((color, index) => (
+                  {chartColors.map((color, index) => (
                     <Cell key={`cell-${index}`} fill={color} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "hsl(var(--color-card))",
+                    border: "1px solid hsl(var(--color-border))",
+                    borderRadius: "8px",
+                  }}
+                />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
@@ -218,11 +243,52 @@ export function DashboardContent() {
                 },
               ]}
             >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="stage" angle={-45} textAnchor="end" height={100} />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="count" fill="hsl(var(--color-primary))" />
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--color-border))" />
+              <XAxis
+                dataKey="stage"
+                angle={-45}
+                textAnchor="end"
+                height={100}
+                stroke="hsl(var(--color-muted-foreground))"
+              />
+              <YAxis stroke="hsl(var(--color-muted-foreground))" />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "hsl(var(--color-card))",
+                  border: "1px solid hsl(var(--color-border))",
+                  borderRadius: "8px",
+                }}
+              />
+              <Bar dataKey="count" fill="hsl(var(--color-primary))">
+                {[
+                  {
+                    stage: "Scouting",
+                    count: projects.filter((p) => p.pipelineState === "scouting").length,
+                  },
+                  {
+                    stage: "Qualification",
+                    count: projects.filter((p) => p.pipelineState === "qualification").length,
+                  },
+                  {
+                    stage: "Discovery",
+                    count: projects.filter((p) => p.pipelineState === "discovery").length,
+                  },
+                  {
+                    stage: "Evaluation",
+                    count: projects.filter((p) => p.pipelineState === "technical evaluation").length,
+                  },
+                  {
+                    stage: "In Progress",
+                    count: projects.filter((p) => p.pipelineState === "in progress").length,
+                  },
+                  {
+                    stage: "Finished",
+                    count: projects.filter((p) => p.pipelineState === "finished").length,
+                  },
+                ].map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={Object.values(pipelineColors)[index]} />
+                ))}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
