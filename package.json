@@ -59,7 +59,7 @@
     "react-dom": "19.2.0",
     "react-hook-form": "^7.60.0",
     "react-resizable-panels": "^2.1.7",
-    "recharts": "latest",
+    "recharts": "2.15.4",
     "snappy": "latest",
     "socks": "latest",
     "sonner": "^1.7.4",
@@ -77,6 +77,6 @@
     "postcss": "^8.5",
     "tailwindcss": "^4.1.9",
     "tw-animate-css": "1.3.3",
-    "typescript": "^5"
+    "typescript": "^5.7.2"
   }
 }

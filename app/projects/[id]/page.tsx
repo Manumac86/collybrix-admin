@@ -1,17 +1,24 @@
-"use client"
+"use client";
 
-import { useParams } from "next/navigation"
-import Link from "next/link"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft, Mail, Phone } from "lucide-react"
-import { LayoutWrapper } from "@/components/layout-wrapper"
-import { ProjectTimeline } from "@/components/project-timeline"
-import { EditProjectDialog } from "@/components/edit-project-dialog"
-import { DeleteProjectDialog } from "@/components/delete-project-dialog"
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useParams } from "next/navigation";
+import Link from "next/link";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, Mail, Phone } from "lucide-react";
+import { LayoutWrapper } from "@/components/layout-wrapper";
+import { ProjectTimeline } from "@/components/project-timeline";
+import { EditProjectDialog } from "@/components/edit-project-dialog";
+import { DeleteProjectDialog } from "@/components/delete-project-dialog";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useDeleteProject, useProject } from "@/hooks/projects";
 
 const pipelineColors: Record<string, string> = {
   scouting: "bg-slate-100 text-slate-800",
@@ -28,80 +35,73 @@ const pipelineColors: Record<string, string> = {
   "in progress": "bg-green-100 text-green-800",
   cancelled: "bg-red-100 text-red-800",
   finished: "bg-emerald-100 text-emerald-800",
-}
+};
 
 const projectTypeColors: Record<string, string> = {
   Accelleration: "bg-blue-100 text-blue-800",
   "Software Factory": "bg-purple-100 text-purple-800",
   Consulting: "bg-amber-100 text-amber-800",
   SaaS: "bg-green-100 text-green-800",
-}
+};
 
 const paymentStatusColors: Record<string, string> = {
   paid: "bg-green-100 text-green-800",
   partial: "bg-yellow-100 text-yellow-800",
   pending: "bg-red-100 text-red-800",
-}
+};
 
 export default function ProjectDetailPage() {
-  const params = useParams()
-  const router = useRouter()
-  const projectId = params.id as string
-  const [currentProject, setCurrentProject] = useState<any>(null)
-  const [projectMilestones, setProjectMilestones] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [projectContacts, setProjectContacts] = useState<any[]>([])
-
+  const params = useParams();
+  const router = useRouter();
+  const projectId = params.id as string;
+  const [currentProject, setCurrentProject] = useState<any>(null);
+  const [projectMilestones, setProjectMilestones] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [projectContacts, setProjectContacts] = useState<any[]>([]);
+  const { project, isLoading, error } = useProject(projectId);
+  const { trigger: deleteProject } = useDeleteProject(projectId!);
   useEffect(() => {
-    const fetchProject = async () => {
-      try {
-        const response = await fetch(`/api/projects/${projectId}`)
-        if (response.ok) {
-          const project = await response.json()
-          setCurrentProject(project)
-          setProjectMilestones(project.milestones || [])
-        }
-      } catch (error) {
-        console.error("Error fetching project:", error)
-      } finally {
-        setLoading(false)
-      }
+    if (project) {
+      setCurrentProject(project);
+      setProjectMilestones(project.milestones || []);
+      setProjectContacts(project.contacts || []);
     }
-
-    fetchProject()
-  }, [projectId])
+  }, [project]);
 
   const handleAddMilestone = (newMilestone: any) => {
-    setProjectMilestones([...projectMilestones, newMilestone])
-  }
+    setProjectMilestones([...projectMilestones, newMilestone]);
+  };
 
   const handleSaveProject = () => {
     // Refresh project data after update
     const fetchProject = async () => {
       try {
-        const response = await fetch(`/api/projects/${projectId}`)
+        const response = await fetch(`/api/projects/${projectId}`);
         if (response.ok) {
-          const project = await response.json()
-          setCurrentProject(project)
+          const project = await response.json();
+          setCurrentProject(project);
         }
       } catch (error) {
-        console.error("Error fetching project:", error)
+        console.error("Error fetching project:", error);
       }
-    }
+    };
 
-    fetchProject()
-  }
+    fetchProject();
+  };
 
-  const handleDeleteProject = () => {
-    router.push("/projects")
-  }
+  const handleDeleteProject = async () => {
+    await deleteProject();
+    router.push("/projects");
+  };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <LayoutWrapper>
-        <div className="p-8 text-center text-muted-foreground">Loading project...</div>
+        <div className="p-8 text-center text-muted-foreground">
+          Loading project...
+        </div>
       </LayoutWrapper>
-    )
+    );
   }
 
   if (!currentProject) {
@@ -114,10 +114,12 @@ export default function ProjectDetailPage() {
               Back to Projects
             </Button>
           </Link>
-          <div className="text-center text-muted-foreground">Project not found</div>
+          <div className="text-center text-muted-foreground">
+            Project not found
+          </div>
         </div>
       </LayoutWrapper>
-    )
+    );
   }
 
   return (
@@ -134,8 +136,12 @@ export default function ProjectDetailPage() {
         {/* Project Header with Edit and Delete Buttons */}
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">{currentProject.name}</h1>
-            <p className="text-muted-foreground mt-2">{currentProject.company}</p>
+            <h1 className="text-3xl font-bold text-foreground">
+              {currentProject.name}
+            </h1>
+            <p className="text-muted-foreground mt-2">
+              {currentProject.company}
+            </p>
             <Link
               href={currentProject.docsLink}
               target="_blank"
@@ -143,7 +149,12 @@ export default function ProjectDetailPage() {
               className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium"
             >
               View Project Docs
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -155,7 +166,10 @@ export default function ProjectDetailPage() {
           </div>
           {/* Edit and Delete Buttons */}
           <div className="flex gap-2">
-            <EditProjectDialog project={currentProject} onSave={handleSaveProject} />
+            <EditProjectDialog
+              project={currentProject}
+              onSave={handleSaveProject}
+            />
             <DeleteProjectDialog
               projectId={currentProject._id}
               projectName={currentProject.name}
@@ -168,10 +182,17 @@ export default function ProjectDetailPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold text-muted-foreground">Pipeline State</CardTitle>
+              <CardTitle className="text-sm font-semibold text-muted-foreground">
+                Pipeline State
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <Badge className={`${pipelineColors[currentProject.pipelineState] || "bg-gray-100 text-gray-800"}`}>
+              <Badge
+                className={`${
+                  pipelineColors[currentProject.pipelineState] ||
+                  "bg-gray-100 text-gray-800"
+                }`}
+              >
                 {currentProject.pipelineState}
               </Badge>
             </CardContent>
@@ -179,10 +200,17 @@ export default function ProjectDetailPage() {
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold text-muted-foreground">Project Type</CardTitle>
+              <CardTitle className="text-sm font-semibold text-muted-foreground">
+                Project Type
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <Badge className={projectTypeColors[currentProject.projectType] || "bg-gray-100 text-gray-800"}>
+              <Badge
+                className={
+                  projectTypeColors[currentProject.projectType] ||
+                  "bg-gray-100 text-gray-800"
+                }
+              >
                 {currentProject.projectType}
               </Badge>
             </CardContent>
@@ -190,19 +218,30 @@ export default function ProjectDetailPage() {
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold text-muted-foreground">Status</CardTitle>
+              <CardTitle className="text-sm font-semibold text-muted-foreground">
+                Status
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <Badge className="bg-blue-100 text-blue-800">{currentProject.status}</Badge>
+              <Badge className="bg-blue-100 text-blue-800">
+                {currentProject.status}
+              </Badge>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold text-muted-foreground">Payment Status</CardTitle>
+              <CardTitle className="text-sm font-semibold text-muted-foreground">
+                Payment Status
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <Badge className={paymentStatusColors[currentProject.paymentStatus] || "bg-gray-100 text-gray-800"}>
+              <Badge
+                className={
+                  paymentStatusColors[currentProject.paymentStatus] ||
+                  "bg-gray-100 text-gray-800"
+                }
+              >
                 {currentProject.paymentStatus}
               </Badge>
             </CardContent>
@@ -230,7 +269,9 @@ export default function ProjectDetailPage() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-foreground">
-                {currentProject.finalPrice ? `€${currentProject.finalPrice.toLocaleString()}` : "Not set"}
+                {currentProject.finalPrice
+                  ? `€${currentProject.finalPrice.toLocaleString()}`
+                  : "Not set"}
               </div>
             </CardContent>
           </Card>
@@ -241,13 +282,18 @@ export default function ProjectDetailPage() {
               <CardDescription>MMR</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-foreground">€{(currentProject.mmr || 0).toLocaleString()}</div>
+              <div className="text-3xl font-bold text-foreground">
+                €{(currentProject.mmr || 0).toLocaleString()}
+              </div>
             </CardContent>
           </Card>
         </div>
 
         {/* Project Timeline */}
-        <ProjectTimeline milestones={projectMilestones} onAddMilestone={handleAddMilestone} />
+        <ProjectTimeline
+          milestones={projectMilestones}
+          onAddMilestone={handleAddMilestone}
+        />
 
         {/* Description Section */}
         <Card>
@@ -255,7 +301,9 @@ export default function ProjectDetailPage() {
             <CardTitle>Description</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground leading-relaxed">{currentProject.description}</p>
+            <p className="text-muted-foreground leading-relaxed">
+              {currentProject.description}
+            </p>
           </CardContent>
         </Card>
 
@@ -264,7 +312,9 @@ export default function ProjectDetailPage() {
           <Card>
             <CardHeader>
               <CardTitle>Project Contacts</CardTitle>
-              <CardDescription>{projectContacts.length} contact(s) associated with this project</CardDescription>
+              <CardDescription>
+                {projectContacts.length} contact(s) associated with this project
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -274,9 +324,15 @@ export default function ProjectDetailPage() {
                     className="flex items-start justify-between border-b border-border pb-4 last:border-0"
                   >
                     <div className="flex-1">
-                      <div className="font-semibold text-foreground">{contact.name}</div>
-                      <div className="text-sm text-muted-foreground">{contact.position}</div>
-                      <div className="text-xs text-muted-foreground mt-1">{contact.company}</div>
+                      <div className="font-semibold text-foreground">
+                        {contact.name}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {contact.position}
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-1">
+                        {contact.company}
+                      </div>
                     </div>
                     <div className="flex gap-2">
                       <a href={`mailto:${contact.email}`}>
@@ -298,5 +354,5 @@ export default function ProjectDetailPage() {
         )}
       </div>
     </LayoutWrapper>
-  )
+  );
 }
