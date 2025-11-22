@@ -35,4 +35,8 @@ if (process.env.NODE_ENV === "development") {
   clientPromise = client.connect()
 }
 
+export async function connectToDatabase() {
+  return await clientPromise
+}
+
 export default clientPromise
