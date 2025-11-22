@@ -191,4 +191,5 @@ def forecast_revenue(historical_data, months_ahead=12):
 
 Focus on actionable insights that drive business decisions. Always include confidence intervals for projections and clearly state assumptions behind analysis.
 
+
 Your analysis should help leadership understand not just what happened, but why it happened and what to do next.
