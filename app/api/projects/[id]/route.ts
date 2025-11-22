@@ -2,9 +2,9 @@ import { type NextRequest, NextResponse } from "next/server"
 import clientPromise from "@/lib/mongodb"
 import { ObjectId } from "mongodb"
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { id } = await params
+    const { id } = params
     const client = await clientPromise
     const db = client.db("collybrix")
 
@@ -20,9 +20,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { id } = await params
+    const { id } = params
     const body = await request.json()
     const client = await clientPromise
     const db = client.db("collybrix")
@@ -44,13 +44,17 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     return NextResponse.json(result.value)
   } catch (error) {
-    return NextResponse.json({ error: "Failed to update project" }, { status: 500 })
+    console.error("[v0] PUT /api/projects/[id] error:", error instanceof Error ? error.message : String(error))
+    return NextResponse.json(
+      { error: "Failed to update project", details: error instanceof Error ? error.message : String(error) },
+      { status: 500 },
+    )
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { id } = await params
+    const { id } = params
     const client = await clientPromise
     const db = client.db("collybrix")
 
