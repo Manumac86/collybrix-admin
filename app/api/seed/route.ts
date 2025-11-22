@@ -230,22 +230,37 @@ const projectsData = [
 
 export async function POST() {
   try {
+    console.log("[v0] Starting database seed...")
     const client = await clientPromise
+    console.log("[v0] Connected to MongoDB client")
+
     const db = client.db("collybrix")
     const collection = db.collection("projects")
 
     const count = await collection.countDocuments()
+    console.log("[v0] Current project count:", count)
+
     if (count > 0) {
+      console.log("[v0] Database already seeded")
       return Response.json({ message: "Database already seeded", count })
     }
 
+    console.log("[v0] Inserting seed data...")
     const result = await collection.insertMany(projectsData)
+    console.log("[v0] Successfully seeded", result.insertedIds.length, "projects")
+
     return Response.json({
       message: `Successfully seeded ${result.insertedIds.length} projects`,
       insertedIds: result.insertedIds,
     })
   } catch (error) {
-    console.error("Failed to seed database:", error)
-    return Response.json({ error: "Failed to seed database" }, { status: 500 })
+    console.error("[v0] Failed to seed database:", error)
+    return Response.json(
+      {
+        error: "Failed to seed database",
+        details: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 },
+    )
   }
 }
