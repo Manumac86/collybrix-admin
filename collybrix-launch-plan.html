@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collybrix Website Launch Plan</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .launch-date {
+            background: rgba(255,255,255,0.2);
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 25px;
+            margin-top: 15px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s;
+            border: none;
+            background: none;
+            font-size: 1rem;
+        }
+        
+        .tab:hover {
+            background: #e9ecef;
+        }
+        
+        .tab.active {
+            color: #667eea;
+            background: white;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .phase {
+            margin-bottom: 35px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .phase-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .phase h2 {
+            color: #667eea;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .timeline {
+            background: rgba(118, 75, 162, 0.1);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #764ba2;
+        }
+        
+        .checklist-item {
+            background: white;
+            padding: 18px;
+            margin: 12px 0;
+            border-radius: 8px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .checklist-item:hover {
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+        
+        .checklist-item.completed {
+            opacity: 0.6;
+            background: #e8f5e9;
+        }
+        
+        .checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #667eea;
+            border-radius: 6px;
+            cursor: pointer;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .checklist-item.completed .checkbox {
+            background: #667eea;
+        }
+        
+        .checkbox::after {
+            content: '✓';
+            color: white;
+            font-weight: bold;
+            display: none;
+        }
+        
+        .checklist-item.completed .checkbox::after {
+            display: block;
+        }
+        
+        .checklist-content {
+            flex: 1;
+        }
+        
+        .checklist-content strong {
+            color: #2c3e50;
+            display: block;
+            margin-bottom: 5px;
+            font-size: 1.05rem;
+        }
+        
+        .checklist-content p {
+            color: #6c757d;
+            font-size: 0.95rem;
+            margin-top: 5px;
+        }
+        
+        .priority {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        
+        .priority.high {
+            background: #fee;
+            color: #c00;
+        }
+        
+        .priority.medium {
+            background: #fef3cd;
+            color: #856404;
+        }
+        
+        .tactic-card {
+            background: white;
+            padding: 25px;
+            margin: 15px 0;
+            border-radius: 12px;
+            border: 2px solid #e9ecef;
+            transition: all 0.2s;
+        }
+        
+        .tactic-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        }
+        
+        .tactic-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .tactic-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .tactic-card h3 {
+            color: #2c3e50;
+            font-size: 1.3rem;
+        }
+        
+        .tactic-card ul {
+            margin-left: 20px;
+            margin-top: 12px;
+        }
+        
+        .tactic-card li {
+            margin: 8px 0;
+            color: #495057;
+        }
+        
+        .metric {
+            background: #e8f4f8;
+            padding: 8px 14px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-top: 12px;
+            font-size: 0.9rem;
+            color: #0c5460;
+            font-weight: 600;
+        }
+        
+        .progress-bar {
+            background: #e9ecef;
+            height: 8px;
+            border-radius: 10px;
+            margin-top: 30px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s;
+            border-radius: 10px;
+        }
+        
+        .progress-text {
+            text-align: center;
+            margin-top: 10px;
+            font-weight: 600;
+            color: #667eea;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        
+        .warning-box strong {
+            color: #856404;
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        .tip-box {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        
+        .tip-box strong {
+            color: #0c5460;
+            display: block;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Collybrix Website Launch Plan</h1>
+            <p class="subtitle">Your Temporary Technical Co-Founders</p>
+            <div class="launch-date">Launch Date: Monday, December 2, 2024</div>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" data-tab="prelaunch">Pre-Launch Week</button>
+            <button class="tab" data-tab="launch">Launch Day</button>
+            <button class="tab" data-tab="campaign">Marketing Campaign</button>
+            <button class="tab" data-tab="metrics">Metrics & Goals</button>
+        </div>
+        
+        <div class="content">
+            <!-- Pre-Launch Tab -->
+            <div class="tab-content active" data-content="prelaunch">
+                <div class="warning-box">
+                    <strong>⏰ Critical Timeline</strong>
+                    You have 7 days until launch. Focus on high-impact activities that drive immediate traction.
+                </div>
+                
+                <div class="phase">
+                    <div class="phase-header">
+                        <h2>📋 Day 1-2: Finalize & Prepare</h2>
+                        <span class="timeline">Nov 25-26</span>
+                    </div>
+                    
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-content">
+                            <strong>Complete all website sections <span class="priority high">HIGH</span></strong>
+                            <p>Ensure all core pages are ready: Home, Services, About, Contact, Case Studies/Portfolio. Test on mobile and desktop.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-content">
+                            <strong>Set up analytics & tracking <span class="priority high">HIGH</span></strong>
+                            <p>Install Google Analytics 4, set up conversion goals (contact form, consultation requests), add Meta Pixel for retargeting.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-content">
+                            <strong>Prepare lead capture system</strong>
+                            <p>Test contact forms, set up autoresponders, create lead magnet (e.g., "Startup Tech Stack Guide" or "MVP Development Checklist").</p>
+                        </div>
+                    </div>
+                    
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-content">
+                            <strong>SEO basics</strong>
+                            <p>Optimize meta titles, descriptions, H1 tags. Submit sitemap to Google Search Console. Set up Google Business Profile.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="phase">
+                    <div class="phase-header">
+                        <h2>📱 Day 3-4: Content & Social Prep</h2>
+                        <span class="timeline">Nov 27-28</span>
+                    </div>
+                    
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-content">
+                            <strong>Create launch announcement content <span class="priority high">HIGH</span></strong>
+                            <p>Write LinkedIn post, Twitter/X thread, email announcement. Focus on your unique value: "AI-accelerated development + human expertise".</p>
+                        </div>
+                    </div>
+                    
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-content">
+                            <strong>Prepare 2 weeks of social content</strong>
+                            <p>Create 10-14 posts showcasing: founder expertise, startup tips, client success stories, behind-the-scenes, problem/solution posts.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-content">
+                            <strong>Build launch day email list</strong>
+                            <p>Compile list of: past clients, network contacts, accelerator connections (Wayra!), startup communities, tech communities in Spain.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-content">
+                            <strong>Prepare press/blog outreach list</strong>
+                            <p>Identify 20-30 startup blogs, tech publications, Spanish startup media, and accelerator newsletters to contact.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="phase">
+                    <div class="phase-header">
+                        <h2>🎯 Day 5-6: Strategic Prep</h2>
+                        <span class="timeline">Nov 29-30</span>
+                    </div>
+                    
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-content">
+                            <strong>Set up ads campaigns (optional but recommended) <span class="priority medium">MEDIUM</span></strong>
+                            <p>Create LinkedIn Ads targeting startup founders, Google Ads for "technical cofounder" searches. Budget: €300-500 for first month.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-content">
+                            <strong>Prepare partnership outreach</strong>
+                            <p>Draft personalized messages for Wayra, other accelerators, startup communities, coworking spaces in Madrid/Barcelona.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-content">
+                            <strong>Create case study/success story</strong>
+                            <p>Document one strong example: problem → Collybrix solution → results. Use this across all marketing.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-content">
+                            <strong>Schedule launch week content</strong>
+                            <p>Use Buffer/Hootsuite to schedule posts for Monday-Friday. Plan 2-3 posts per day across platforms.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="phase">
+                    <div class="phase-header">
+                        <h2>✅ Day 7: Final Checks</h2>
+                        <span class="timeline">Dec 1 (Sunday)</span>
+                    </div>
+                    
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-content">
+                            <strong>Full website QA test</strong>
+                            <p>Test all links, forms, mobile responsiveness, page load speeds. Have 2-3 people review for typos/bugs.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-content">
+                            <strong>Queue launch announcements</strong>
+                            <p>Schedule social posts for 9am Monday. Prepare email for 10am send. Have launch day content ready to go.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-content">
+                            <strong>Prepare for launch day monitoring</strong>
+                            <p>Set up dashboards to watch: website traffic, form submissions, social engagement, email open rates.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" id="prelaunchProgress"></div>
+                </div>
+                <div class="progress-text" id="prelaunchText">0% Complete</div>
+            </div>
+            
+            <!-- Launch Day Tab -->
+            <div class="tab-content" data-content="launch">
+                <div class="tip-box">
+                    <strong>💡 Launch Day Success Tip</strong>
+                    Launch day isn't just one day—it's a 3-day push. Front-load your efforts Monday-Wednesday for maximum impact.
+                </div>
+                
+                <div class="phase">
+                    <div class="phase-header">
+                        <h2>🎉 Monday Morning: The Big Push</h2>
+                        <span class="timeline">9am-12pm</span>
+                    </div>
+                    
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-content">
+                            <strong>Social media blitz <span class="priority high">HIGH</span></strong>
+                            <p>Post launch announcement on LinkedIn (personal + company), Twitter/X, relevant startup Facebook groups, ProductHunt (if ready).</p>
+                        </div>
+                    </div>
+                    
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-content">
+                            <strong>Email your network <span class="priority high">HIGH</span></strong>
+                            <p>Send personalized launch email to your compiled list. Include clear CTA: "Book a free consultation" or "Get your startup assessment".</p>
+                        </div>
+                    </div>
+                    
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-content">
+                            <strong>Engage actively</strong>
+                            <p>Spend 2 hours responding to comments, DMs, emails. Every interaction builds momentum and trust.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="phase">
+                    <div class="phase-header">
+                        <h2>📢 Monday Afternoon: Amplify</h2>
+                        <span class="timeline">2pm-6pm</span>
+                    </div>
+                    
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-content">
+                            <strong>Community outreach</strong>
+                            <p>Post in relevant Reddit (r/startups, r/entrepreneur), Indie Hackers, startup Slack/Discord communities. Be helpful, not salesy.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-content">
+                            <strong>Direct outreach to warm leads</strong>
+                            <p>Send personalized DMs to 20-30 potential clients you've identified. Mention specific pain points you can solve.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-content">
+                            <strong>Monitor and respond</strong>
+                            <p>Keep tabs on analytics. Respond to all inquiries within 1 hour. Speed = trust for new launches.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="phase">
+                    <div class="phase-header">
+                        <h2>🔥 Tuesday-Wednesday: Sustain Momentum</h2>
+                        <span class="timeline">Day 2-3</span>
+                    </div>
+                    
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-content">
+                            <strong>Share early wins</strong>
+                            <p>Post updates: "First X sign-ups!", "Amazing conversations with founders today!". Social proof drives more interest.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-content">
+                            <strong>Continue daily posting</strong>
+                            <p>Share valuable content daily: startup tips, tech insights, founder stories. Position Collybrix as thought leaders.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-content">
+                            <strong>Follow up with leads</strong>
+                            <p>Reach out to everyone who engaged. Offer free value: consultation, advice, resources. Build relationships first.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" id="launchProgress"></div>
+                </div>
+                <div class="progress-text" id="launchText">0% Complete</div>
+            </div>
+            
+            <!-- Marketing Campaign Tab -->
+            <div class="tab-content" data-content="campaign">
+                <h2 style="margin-bottom: 25px; color: #667eea;">🎯 Ongoing Marketing Tactics (Week 2+)</h2>
+                
+                <div class="tactic-card">
+                    <div class="tactic-header">
+                        <div class="tactic-icon">📝</div>
+                        <div>
+                            <h3>Content Marketing</h3>
+                            <span class="metric">Goal: 2-3 posts/week</span>
+                        </div>
+                    </div>
+                    <ul>
+                        <li><strong>LinkedIn thought leadership:</strong> Share CTO insights, technical decision frameworks, startup scaling stories</li>
+                        <li><strong>Blog posts:</strong> "5 Technical Mistakes That Kill Startups", "How to Choose Your Tech Stack", "MVP vs Full Product: A CTO's Guide"</li>
+                        <li><strong>Case studies:</strong> Document client journeys (with permission) showing before/after transformations</li>
+                        <li><strong>Video content:</strong> Short tips, behind-the-scenes of working with startups, tech explainers</li>
+                    </ul>
+                </div>
+                
+                <div class="tactic-card">
+                    <div class="tactic-header">
+                        <div class="tactic-icon">🤝</div>
+                        <div>
+                            <h3>Partnership Strategy</h3>
+                            <span class="metric">Goal: 5-10 partnerships</span>
+                        </div>
+                    </div>
+                    <ul>
+                        <li><strong>Accelerator partnerships:</strong> Wayra, Lanzadera, Startup Valencia, Ship2B—become their technical partner</li>
+                        <li><strong>Coworking spaces:</strong> WeWork, Utopicus, Impact Hub—offer workshops or office hours</li>
+                        <li><strong>Business schools:</strong> IE, ESADE—guest lecture, mentor MBA students' projects</li>
+                        <li><strong>Startup events:</strong> Sponsor or speak at Startup Grind Madrid, TechCrunch Barcelona, 4YFN</li>
+                    </ul>
+                </div>
+                
+                <div class="tactic-card">
+                    <div class="tactic-header">
+                        <div class="tactic-icon">🎯</div>
+                        <div>
+                            <h3>Paid Advertising</h3>
+                            <span class="metric">Budget: €500-1000/month</span>
+                        </div>
+                    </div>
+                    <ul>
+                        <li><strong>LinkedIn Ads:</strong> Target startup founders, entrepreneurs in Spain/LATAM. Use lead gen forms for consultation bookings</li>
+                        <li><strong>Google Ads:</strong> Bid on "technical cofounder", "CTO for startup", "MVP development Spain"</li>
+                        <li><strong>Retargeting:</strong> Show testimonials and case studies to website visitors who didn't convert</li>
+                        <li><strong>Test & optimize:</strong> Start small, measure ROI, double down on what works</li>
+                    </ul>
+                </div>
+                
+                <div class="tactic-card">
+                    <div class="tactic-header">
+                        <div class="tactic-icon">🗣️</div>
+                        <div>
+                            <h3>Thought Leadership</h3>
+                            <span class="metric">Goal: 1-2 speaking gigs/month</span>
+                        </div>
+                    </div>
+                    <ul>
+                        <li><strong>Podcast guesting:</strong> Reach out to Spanish startup podcasts, tech entrepreneurship shows</li>
+                        <li><strong>Webinars:</strong> Host free webinars on "Technical Strategy for Non-Technical Founders"</li>
+                        <li><strong>Guest articles:</strong> Write for TechCrunch ES, Startupeable, Novobrief</li>
+                        <li><strong>LinkedIn Live:</strong> Weekly or biweekly live Q&As about startup tech challenges</li>
+                    </ul>
+                </div>
+                
+                <div class="tactic-card">
+                    <div class="tactic-header">
+                        <div class="tactic-icon">💌</div>
+                        <div>
+                            <h3>Email Nurture Campaign</h3>
+                            <span class="metric">Goal: Build to 500+ subscribers</span>
+                        </div>
+                    </div>
+                    <ul>
+                        <li><strong>Lead magnet:</strong> "The Startup Tech Stack Playbook" or "100K Users: A Technical Roadmap"</li>
+                        <li><strong>Weekly newsletter:</strong> Share startup tech tips, industry insights, Collybrix updates</li>
+                        <li><strong>Automated sequences:</strong> Welcome series → educational content → consultation offer</li>
+                        <li><strong>Segmentation:</strong> Different tracks for early-stage vs scaling startups</li>
+                    </ul>
+                </div>
+                
+                <div class="tactic-card">
+                    <div class="tactic-header">
+                        <div class="tactic-icon">🎁</div>
+                        <div>
+                            <h3>Free Value Strategy</h3>
+                            <span class="metric">Goal: Build trust & authority</span>
+                        </div>
+                    </div>
+                    <ul>
+                        <li><strong>Free tech audits:</strong> Offer 15-minute "Technical Health Check" for startups</li>
+                        <li><strong>Open-source contributions:</strong> Create helpful tools/templates for founders</li>
+                        <li><strong>AMA sessions:</strong> Reddit, Twitter Spaces, LinkedIn—answer founder questions</li>
+                        <li><strong>Referral program:</strong> Incentivize happy clients to introduce you to other founders</li>
+                    </ul>
+                </div>
+                
+                <div class="warning-box">
+                    <strong>🎯 Focus Areas for Months 1-3</strong>
+                    Don't spread too thin! Prioritize: (1) LinkedIn content + engagement, (2) Partnership with 2-3 accelerators, (3) Weekly valuable content, (4) Direct outreach to warm leads. Perfect these before scaling to other channels.
+                </div>
+            </div>
+            
+            <!-- Metrics Tab -->
+            <div class="tab-content" data-content="metrics">
+                <h2 style="margin-bottom: 25px; color: #667eea;">📊 Success Metrics & Goals</h2>
+                
+                <div class="phase">
+                    <div class="phase-header">
+                        <h2>Week 1 Goals (Launch Week)</h2>
+                    </div>
+                    
+                    <div class="tactic-card">
+                        <h3>Website Metrics</h3>
+                        <ul>
+                            <li>✅ <strong>500-1,000 unique visitors</strong> in first week</li>
+                            <li>✅ <strong>2-3 minute average session</strong> duration</li>
+                            <li>✅ <strong>10-15 consultation requests</strong> or contact form fills</li>
+                            <li>✅ <strong>2-5 qualified leads</strong> (startups actively seeking help)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="tactic-card">
+                        <h3>Social Engagement</h3>
+                        <ul>
+                            <li>✅ <strong>50-100 LinkedIn post engagements</strong> (likes, comments, shares)</li>
+                            <li>✅ <strong>200-500 profile views</strong> on LinkedIn</li>
+                            <li>✅ <strong>10-20 meaningful conversations</strong> with potential clients</li>
+                            <li>✅ <strong>20-30 new followers</strong> across platforms</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="phase">
+                    <div class="phase-header">
+                        <h2>Month 1 Goals (December)</h2>
+                    </div>
+                    
+                    <div class="tactic-card">
+                        <h3>Lead Generation</h3>
+                        <ul>
+                            <li>🎯 <strong>50-100 total leads</strong> (email signups, consultations, inquiries)</li>
+                            <li>🎯 <strong>10-20 qualified discovery calls</strong></li>
+                            <li>🎯 <strong>3-5 proposals sent</strong> to potential clients</li>
+                            <li>🎯 <strong>1-2 new client contracts</strong> signed</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="tactic-card">
+                        <h3>Content & Authority</h3>
+                        <ul>
+                            <li>🎯 <strong>12-15 LinkedIn posts</strong> published</li>
+                            <li>🎯 <strong>2-3 blog articles</strong> on website</li>
+                            <li>🎯 <strong>1-2 case studies</strong> documented</li>
+                            <li>🎯 <strong>1 partnership</strong> established (accelerator/coworking)</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="phase">
+                    <div class="phase-header">
+                        <h2>Quarter 1 Goals (Dec-Feb)</h2>
+                    </div>
+                    
+                    <div class="tactic-card">
+                        <h3>Business Growth</h3>
+                        <ul>
+                            <li>🚀 <strong>5-8 active client projects</strong></li>
+                            <li>🚀 <strong>€30-50K revenue</strong> generated</li>
+                            <li>🚀 <strong>3-5 strategic partnerships</strong> (accelerators, communities)</li>
+                            <li>🚀 <strong>300-500 email subscribers</strong></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="tactic-card">
+                        <h3>Brand Presence</h3>
+                        <ul>
+                            <li>🚀 <strong>1,000+ LinkedIn followers</strong></li>
+                            <li>🚀 <strong>2-3 speaking engagements</strong> or podcast appearances</li>
+                            <li>🚀 <strong>5+ client testimonials</strong> and case studies</li>
+                            <li>🚀 Known as "go-to technical partner" in 2-3 accelerators</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="tip-box">
+                    <strong>📈 Track Weekly</strong>
+                    Every Monday, review: website traffic, new leads, conversion rate, social engagement, content performance. Adjust tactics based on what's working. Use Google Analytics + a simple spreadsheet to stay organized.
+                </div>
+                
+                <div class="warning-box">
+                    <strong>💡 What "Good" Looks Like</strong>
+                    For a B2B service business like Collybrix, expect 2-5% website-to-lead conversion, 20-30% lead-to-discovery call conversion, 20-40% proposal-to-client conversion. Focus on quality over quantity—10 perfect-fit leads beat 100 tire-kickers.
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabName = tab.dataset.tab;
+                
+                // Update tabs
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // Update content
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.querySelector(`[data-content="${tabName}"]`).classList.add('active');
+            });
+        });
+        
+        // Checklist functionality
+        document.querySelectorAll('.checklist-item').forEach(item => {
+            item.addEventListener('click', () => {
+                item.classList.toggle('completed');
+                updateProgress();
+            });
+        });
+        
+        function updateProgress() {
+            // Pre-launch progress
+            const prelaunchItems = document.querySelector('[data-content="prelaunch"]').querySelectorAll('.checklist-item');
+            const prelaunchCompleted = Array.from(prelaunchItems).filter(item => item.classList.contains('completed')).length;
+            const prelaunchPercent = Math.round((prelaunchCompleted / prelaunchItems.length) * 100);
+            document.getElementById('prelaunchProgress').style.width = prelaunchPercent + '%';
+            document.getElementById('prelaunchText').textContent = prelaunchPercent + '% Complete';
+            
+            // Launch progress
+            const launchItems = document.querySelector('[data-content="launch"]').querySelectorAll('.checklist-item');
+            const launchCompleted = Array.from(launchItems).filter(item => item.classList.contains('completed')).length;
+            const launchPercent = Math.round((launchCompleted / launchItems.length) * 100);
+            document.getElementById('launchProgress').style.width = launchPercent + '%';
+            document.getElementById('launchText').textContent = launchPercent + '%Complete';
+        }
+        
+        // Initialize progress
+        updateProgress();
+    </script>
+</body>
+</html>
