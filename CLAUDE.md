@@ -8,18 +8,23 @@ Collybrix Admin Dashboard - A Next.js application for managing projects, contact
 
 ## Development Commands
 
+**IMPORTANT: Always use `pnpm` for this project, not `npm` or `yarn`.**
+
 ```bash
 # Start development server (default: http://localhost:3000)
-npm run dev
+pnpm dev
 
 # Build for production
-npm run build
+pnpm build
 
 # Start production server
-npm start
+pnpm start
 
 # Lint code
-npm run lint
+pnpm lint
+
+# Install dependencies
+pnpm install
 ```
 
 ## Environment Setup

@@ -23,7 +23,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useCreateUser, useUpdateUser } from "@/hooks/pm";
 import { toast } from "sonner";
-import type { User, UserRole, USER_ROLES } from "@/types/pm";
+import { USER_ROLES } from "@/types/pm";
+import type { User, UserRole } from "@/types/pm";
 
 interface UserDialogProps {
   user?: User | null;

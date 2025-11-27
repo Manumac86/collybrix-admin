@@ -1,7 +1,14 @@
 "use client";
 
 import { format, differenceInDays } from "date-fns";
-import { Calendar, Target, Edit, Play, CheckCircle, Trash2 } from "lucide-react";
+import {
+  Calendar,
+  Target,
+  Edit,
+  Play,
+  CheckCircle,
+  Trash2,
+} from "lucide-react";
 import { Sprint, SprintStatus } from "@/types/pm";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,7 +23,10 @@ interface SprintHeaderProps {
 
 const STATUS_CONFIG: Record<
   SprintStatus,
-  { label: string; variant: "default" | "secondary" | "outline" | "destructive" }
+  {
+    label: string;
+    variant: "default" | "secondary" | "outline" | "destructive";
+  }
 > = {
   planning: { label: "Planning", variant: "outline" },
   active: { label: "Active", variant: "default" },
@@ -61,16 +71,20 @@ export function SprintHeader({
       ? Math.round((sprint.completedPoints / sprint.committedPoints) * 100)
       : 0;
 
-  const timePercentage = totalDays > 0 ? Math.round((daysElapsed / totalDays) * 100) : 0;
+  const timePercentage =
+    totalDays > 0 ? Math.round((daysElapsed / totalDays) * 100) : 0;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 border-b p-4">
       {/* Title and Status */}
       <div className="flex items-start justify-between">
         <div className="space-y-2">
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold">{sprint.name}</h1>
-            <Badge variant={STATUS_CONFIG[sprint.status].variant} className="text-sm">
+            <Badge
+              variant={STATUS_CONFIG[sprint.status].variant}
+              className="text-sm"
+            >
               {STATUS_CONFIG[sprint.status].label}
             </Badge>
           </div>
@@ -154,12 +168,15 @@ export function SprintHeader({
           <>
             <div className="flex items-center gap-2">
               <span className="font-medium">
-                {sprint.completedPoints} / {sprint.committedPoints} points completed
+                {sprint.completedPoints} / {sprint.committedPoints} points
+                completed
               </span>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="font-medium">{progressPercentage}% complete</span>
+              <span className="font-medium">
+                {progressPercentage}% complete
+              </span>
             </div>
           </>
         )}

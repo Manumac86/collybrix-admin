@@ -72,7 +72,7 @@ export async function GET(
 
 /**
  * PUT /api/pm/users/[id]
- * Update a user
+ * Update a user (supports both Clerk IDs and MongoDB ObjectIds)
  */
 export async function PUT(
   request: NextRequest,
@@ -81,14 +81,17 @@ export async function PUT(
   try {
     const { id } = await params;
 
-    // Validate ObjectId
-    if (!ObjectId.isValid(id)) {
+    // Check if ID is a Clerk ID (starts with user_) or MongoDB ObjectId
+    const isClerkId = id.startsWith("user_");
+
+    // Validate ID format
+    if (!isClerkId && !ObjectId.isValid(id)) {
       return NextResponse.json(
         {
           success: false,
           error: {
             code: "INVALID_ID",
-            message: "Invalid user ID format",
+            message: "Invalid user ID format - must be Clerk ID (user_xxx) or valid MongoDB ObjectId",
           },
         },
         { status: 400 }
@@ -105,12 +108,25 @@ export async function PUT(
     const db = client.db("collybrix");
     const usersCollection = db.collection("users");
 
+    // Build query based on ID type
+    const query = isClerkId
+      ? { clerkId: id }
+      : { _id: new ObjectId(id) };
+
     // If email is being updated, check for duplicates
     if (validated.email) {
-      const existingUser = await usersCollection.findOne({
-        _id: { $ne: new ObjectId(id) },
+      const duplicateQuery: any = {
         email: validated.email.toLowerCase(),
-      });
+      };
+
+      // Exclude current user from duplicate check
+      if (isClerkId) {
+        duplicateQuery.clerkId = { $ne: id };
+      } else {
+        duplicateQuery._id = { $ne: new ObjectId(id) };
+      }
+
+      const existingUser = await usersCollection.findOne(duplicateQuery);
 
       if (existingUser) {
         return NextResponse.json(
@@ -137,11 +153,22 @@ export async function PUT(
       updateDoc.email = validated.email.toLowerCase();
     }
 
-    // Update user
+    // For Clerk users, ensure clerkId is set
+    if (isClerkId) {
+      updateDoc.clerkId = id;
+    }
+
+    // Update or create user metadata
     const result = await usersCollection.findOneAndUpdate(
-      { _id: new ObjectId(id) },
-      { $set: updateDoc },
-      { returnDocument: "after" }
+      query,
+      {
+        $set: updateDoc,
+        $setOnInsert: { createdAt: new Date() }
+      },
+      {
+        returnDocument: "after",
+        upsert: true // Create if doesn't exist
+      }
     );
 
     if (!result) {
@@ -150,7 +177,7 @@ export async function PUT(
           success: false,
           error: {
             code: "NOT_FOUND",
-            message: "User not found",
+            message: "User not found and could not be created",
           },
         },
         { status: 404 }
@@ -194,7 +221,8 @@ export async function PUT(
 
 /**
  * PATCH /api/pm/users/[id]
- * Partial update of a user (e.g., deactivate user)
+ * Partial update of a user (e.g., deactivate user, update role)
+ * Supports both Clerk IDs and MongoDB ObjectIds
  */
 export async function PATCH(
   request: NextRequest,
@@ -203,14 +231,17 @@ export async function PATCH(
   try {
     const { id } = await params;
 
-    // Validate ObjectId
-    if (!ObjectId.isValid(id)) {
+    // Check if ID is a Clerk ID (starts with user_) or MongoDB ObjectId
+    const isClerkId = id.startsWith("user_");
+
+    // Validate ID format
+    if (!isClerkId && !ObjectId.isValid(id)) {
       return NextResponse.json(
         {
           success: false,
           error: {
             code: "INVALID_ID",
-            message: "Invalid user ID format",
+            message: "Invalid user ID format - must be Clerk ID (user_xxx) or valid MongoDB ObjectId",
           },
         },
         { status: 400 }
@@ -224,6 +255,11 @@ export async function PATCH(
     const db = client.db("collybrix");
     const usersCollection = db.collection("users");
 
+    // Build query based on ID type
+    const query = isClerkId
+      ? { clerkId: id }
+      : { _id: new ObjectId(id) };
+
     // Prepare update document
     const updateDoc: any = {
       ...body,
@@ -234,11 +270,22 @@ export async function PATCH(
       updateDoc.email = body.email.toLowerCase();
     }
 
-    // Update user
+    // For Clerk users, ensure clerkId is set
+    if (isClerkId) {
+      updateDoc.clerkId = id;
+    }
+
+    // Update user (create if doesn't exist for Clerk users)
     const result = await usersCollection.findOneAndUpdate(
-      { _id: new ObjectId(id) },
-      { $set: updateDoc },
-      { returnDocument: "after" }
+      query,
+      {
+        $set: updateDoc,
+        $setOnInsert: { createdAt: new Date() }
+      },
+      {
+        returnDocument: "after",
+        upsert: isClerkId // Create metadata record if it doesn't exist for Clerk users
+      }
     );
 
     if (!result) {

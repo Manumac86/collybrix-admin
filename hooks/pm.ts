@@ -834,9 +834,13 @@ export function useCreateUser() {
     },
     {
       onSuccess: () => {
-        // Invalidate all user caches
+        // Invalidate all user and task caches
         mutate(
-          (key) => typeof key === "string" && key.startsWith("/api/pm/users")
+          (key) =>
+            typeof key === "string" &&
+            (key.startsWith("/api/users") ||
+             key.startsWith("/api/pm/users") ||
+             key.startsWith("/api/pm/tasks"))
         );
       },
     }
@@ -864,7 +868,13 @@ export function useUpdateUser(userId: string | null) {
       });
 
       if (!res.ok) {
-        const errorData = await res.json();
+        let errorData;
+        try {
+          errorData = await res.json();
+        } catch (e) {
+          console.error("[PM] Update user error - failed to parse response:", res.status, res.statusText);
+          throw new Error(`Failed to update user: ${res.status} ${res.statusText}`);
+        }
         console.error("[PM] Update user error:", errorData);
         throw new Error(errorData.error?.message || "Failed to update user");
       }
@@ -877,7 +887,9 @@ export function useUpdateUser(userId: string | null) {
         mutate(
           (key) =>
             typeof key === "string" &&
-            (key.startsWith("/api/pm/users") || key.startsWith("/api/pm/tasks"))
+            (key.startsWith("/api/users") ||
+             key.startsWith("/api/pm/users") ||
+             key.startsWith("/api/pm/tasks"))
         );
       },
     }
@@ -914,9 +926,13 @@ export function usePatchUser(userId: string | null) {
     },
     {
       onSuccess: () => {
-        // Invalidate all user caches
+        // Invalidate all user and task caches
         mutate(
-          (key) => typeof key === "string" && key.startsWith("/api/pm/users")
+          (key) =>
+            typeof key === "string" &&
+            (key.startsWith("/api/users") ||
+             key.startsWith("/api/pm/users") ||
+             key.startsWith("/api/pm/tasks"))
         );
       },
     }
@@ -1030,4 +1046,309 @@ export function useProjectSummary(projectId: string) {
     isError: !!error,
     mutate,
   };
+}
+
+// ============================================================================
+// RETROSPECTIVE HOOKS
+// ============================================================================
+
+/**
+ * Hook to fetch retrospective session for a sprint
+ * @param sprintId - Sprint ID
+ * @returns Retrospective summary data
+ */
+export function useRetrospective(sprintId: string | null) {
+  const { data, error, isLoading, mutate } = useSWR<
+    ApiResponse<import("@/types/pm").RetrospectiveSummary | null>
+  >(sprintId ? `/api/pm/sprints/${sprintId}/retrospective` : null, fetcher, {
+    revalidateOnFocus: false,
+    dedupingInterval: 30000,
+  });
+
+  return {
+    retrospective: data?.data,
+    isLoading,
+    error: error?.message,
+    isError: !!error,
+    mutate,
+  };
+}
+
+/**
+ * Hook to create a retrospective session
+ * @returns Trigger function and loading state
+ */
+export function useCreateRetrospective() {
+  const { trigger, isMutating } = useSWRMutation(
+    "/api/pm/sprints/retrospective",
+    async (
+      url,
+      {
+        arg,
+      }: {
+        arg: {
+          sprintId: string;
+          format: string;
+          settings?: {
+            allowAnonymous?: boolean;
+            votesPerPerson?: number;
+            timerMinutes?: number | null;
+          };
+        };
+      }
+    ) => {
+      const res = await fetch(`/api/pm/sprints/${arg.sprintId}/retrospective`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          format: arg.format,
+          settings: arg.settings,
+        }),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error?.message || "Failed to create retrospective");
+      }
+
+      return res.json();
+    }
+  );
+
+  return { trigger, isMutating };
+}
+
+/**
+ * Hook to update retrospective session
+ * @param sprintId - Sprint ID
+ * @returns Trigger function and loading state
+ */
+export function useUpdateRetrospective(sprintId: string | null) {
+  const { trigger, isMutating } = useSWRMutation(
+    sprintId ? `/api/pm/sprints/${sprintId}/retrospective` : null,
+    async (
+      url,
+      {
+        arg,
+      }: {
+        arg: {
+          phase?: string;
+          settings?: {
+            allowAnonymous?: boolean;
+            votesPerPerson?: number;
+            timerMinutes?: number | null;
+          };
+        };
+      }
+    ) => {
+      const res = await fetch(url, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(arg),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error?.message || "Failed to update retrospective");
+      }
+
+      return res.json();
+    }
+  );
+
+  return { trigger, isMutating };
+}
+
+/**
+ * Hook to create a retrospective card
+ * @param sprintId - Sprint ID
+ * @returns Trigger function and loading state
+ */
+export function useCreateRetroCard(sprintId: string | null) {
+  const { trigger, isMutating } = useSWRMutation(
+    sprintId ? `/api/pm/sprints/${sprintId}/retrospective/cards` : null,
+    async (
+      url,
+      {
+        arg,
+      }: {
+        arg: {
+          column: string;
+          content: string;
+          isAnonymous?: boolean;
+        };
+      }
+    ) => {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(arg),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error?.message || "Failed to create card");
+      }
+
+      return res.json();
+    }
+  );
+
+  return { trigger, isMutating };
+}
+
+/**
+ * Hook to vote on a retrospective card
+ * @param sprintId - Sprint ID
+ * @returns Trigger function and loading state
+ */
+export function useVoteRetroCard(sprintId: string | null) {
+  const { trigger, isMutating } = useSWRMutation(
+    sprintId ? `/api/pm/sprints/${sprintId}/retrospective/cards` : null,
+    async (url, { arg }: { arg: { cardId: string; action: "add" | "remove" } }) => {
+      const res = await fetch(`${url}/${arg.cardId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: arg.action }),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error?.message || "Failed to vote");
+      }
+
+      return res.json();
+    }
+  );
+
+  return { trigger, isMutating };
+}
+
+/**
+ * Hook to delete a retrospective card
+ * @param sprintId - Sprint ID
+ * @returns Trigger function and loading state
+ */
+export function useDeleteRetroCard(sprintId: string | null) {
+  const { trigger, isMutating } = useSWRMutation(
+    sprintId ? `/api/pm/sprints/${sprintId}/retrospective/cards` : null,
+    async (url, { arg }: { arg: { cardId: string } }) => {
+      const res = await fetch(`${url}/${arg.cardId}`, { method: "DELETE" });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error?.message || "Failed to delete card");
+      }
+
+      return res.json();
+    }
+  );
+
+  return { trigger, isMutating };
+}
+
+/**
+ * Hook to create a retrospective action item
+ * @param sprintId - Sprint ID
+ * @returns Trigger function and loading state
+ */
+export function useCreateRetroAction(sprintId: string | null) {
+  const { trigger, isMutating } = useSWRMutation(
+    sprintId ? `/api/pm/sprints/${sprintId}/retrospective/actions` : null,
+    async (
+      url,
+      {
+        arg,
+      }: {
+        arg: {
+          title: string;
+          description?: string;
+          assigneeId?: string | null;
+          dueDate?: Date | null;
+          cardIds?: string[];
+        };
+      }
+    ) => {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(arg),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error?.message || "Failed to create action");
+      }
+
+      return res.json();
+    }
+  );
+
+  return { trigger, isMutating };
+}
+
+/**
+ * Hook to update a retrospective action item
+ * @param sprintId - Sprint ID
+ * @returns Trigger function and loading state
+ */
+export function useUpdateRetroAction(sprintId: string | null) {
+  const { trigger, isMutating } = useSWRMutation(
+    sprintId ? `/api/pm/sprints/${sprintId}/retrospective/actions` : null,
+    async (
+      url,
+      {
+        arg,
+      }: {
+        arg: {
+          actionId: string;
+          title?: string;
+          description?: string;
+          assigneeId?: string | null;
+          status?: "todo" | "in_progress" | "done";
+          dueDate?: Date | null;
+          cardIds?: string[];
+        };
+      }
+    ) => {
+      const { actionId, ...updateData } = arg;
+      const res = await fetch(`${url}/${actionId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updateData),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error?.message || "Failed to update action");
+      }
+
+      return res.json();
+    }
+  );
+
+  return { trigger, isMutating };
+}
+
+/**
+ * Hook to delete a retrospective action item
+ * @param sprintId - Sprint ID
+ * @returns Trigger function and loading state
+ */
+export function useDeleteRetroAction(sprintId: string | null) {
+  const { trigger, isMutating } = useSWRMutation(
+    sprintId ? `/api/pm/sprints/${sprintId}/retrospective/actions` : null,
+    async (url, { arg }: { arg: { actionId: string } }) => {
+      const res = await fetch(`${url}/${arg.actionId}`, { method: "DELETE" });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error?.message || "Failed to delete action");
+      }
+
+      return res.json();
+    }
+  );
+
+  return { trigger, isMutating };
 }

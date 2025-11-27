@@ -88,7 +88,10 @@ export function KanbanBoard({
       if (grouped[task.status]) {
         grouped[task.status].push(task);
       } else {
-        console.warn(`[Kanban] Unknown task status: ${task.status}, task:`, task);
+        console.warn(
+          `[Kanban] Unknown task status: ${task.status}, task:`,
+          task
+        );
         // Default to backlog if status is unknown
         grouped.backlog.push(task);
       }
@@ -102,7 +105,9 @@ export function KanbanBoard({
           priorityOrder[a.priority] - priorityOrder[b.priority];
         if (priorityDiff !== 0) return priorityDiff;
         // If same priority, sort by creation date (newest first)
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        return (
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
       });
     });
 
@@ -172,7 +177,9 @@ export function KanbanBoard({
       }
 
       // Show loading toast
-      const toastId = toast.loading(`Moving task to ${newStatus.replace("_", " ")}...`);
+      const toastId = toast.loading(
+        `Moving task to ${newStatus.replace("_", " ")}...`
+      );
 
       try {
         // Call the move handler (optimistic update handled in parent)
@@ -189,29 +196,6 @@ export function KanbanBoard({
     },
     [tasks, onTaskMove]
   );
-
-  if (isLoading) {
-    return (
-      <div className="flex gap-4 overflow-x-auto pb-4">
-        {BOARD_COLUMNS.map((column) => (
-          <div
-            key={column.status}
-            className="w-80 shrink-0 rounded-lg border bg-gray-50 p-4"
-          >
-            <div className="h-8 w-32 animate-pulse rounded bg-gray-300 mb-4" />
-            <div className="space-y-3">
-              {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="h-32 animate-pulse rounded-lg bg-gray-200"
-                />
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  }
 
   return (
     <DndContext
@@ -236,9 +220,7 @@ export function KanbanBoard({
             users={users}
             wipLimit={column.wipLimit}
             onTaskClick={onTaskClick}
-            onAddTask={
-              onAddTask ? () => onAddTask(column.status) : undefined
-            }
+            onAddTask={onAddTask ? () => onAddTask(column.status) : undefined}
           />
         ))}
       </div>

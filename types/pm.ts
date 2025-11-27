@@ -132,12 +132,13 @@ export interface Tag {
 }
 
 /**
- * User (Temporary - Placeholder for Clerk integration)
+ * User (Integrated with Clerk)
  * Represents a team member
+ * Primary key is Clerk user ID (string)
  */
 export interface User {
-  _id: ObjectId;
-  clerkId: string | null; // Future integration
+  _id: string; // Clerk user ID (e.g., "user_2abc123")
+  clerkId: string | null; // Same as _id for compatibility
   name: string;
   email: string;
   avatarUrl: string | null;
@@ -450,3 +451,198 @@ export type TaskPartialUpdate = Partial<
 export type SprintPartialUpdate = Partial<
   Pick<Sprint, "name" | "goal" | "status" | "capacity" | "retrospectiveNotes">
 >;
+
+// ============================================================================
+// RETROSPECTIVE TYPES
+// ============================================================================
+
+/**
+ * Retrospective Format Templates
+ */
+export const RETROSPECTIVE_FORMATS = [
+  "mad-sad-glad",
+  "what-went-well",
+  "start-stop-continue",
+  "4ls",
+] as const;
+export type RetrospectiveFormat = (typeof RETROSPECTIVE_FORMATS)[number];
+
+/**
+ * Retrospective Session Phases
+ */
+export const RETROSPECTIVE_PHASES = [
+  "setup",
+  "collecting",
+  "grouping",
+  "voting",
+  "discussing",
+  "actions",
+  "completed",
+] as const;
+export type RetrospectivePhase = (typeof RETROSPECTIVE_PHASES)[number];
+
+/**
+ * Retrospective Action Item Status
+ */
+export const RETROSPECTIVE_ACTION_STATUSES = [
+  "todo",
+  "in_progress",
+  "done",
+] as const;
+export type RetrospectiveActionStatus =
+  (typeof RETROSPECTIVE_ACTION_STATUSES)[number];
+
+/**
+ * Retrospective Column Types for Mad-Sad-Glad
+ */
+export const MAD_SAD_GLAD_COLUMNS = ["mad", "sad", "glad"] as const;
+export type MadSadGladColumn = (typeof MAD_SAD_GLAD_COLUMNS)[number];
+
+/**
+ * Retrospective Column Types for What Went Well
+ */
+export const WHAT_WENT_WELL_COLUMNS = [
+  "went-well",
+  "improve",
+  "ideas",
+] as const;
+export type WhatWentWellColumn = (typeof WHAT_WENT_WELL_COLUMNS)[number];
+
+/**
+ * Retrospective Column Types for Start-Stop-Continue
+ */
+export const START_STOP_CONTINUE_COLUMNS = [
+  "start",
+  "stop",
+  "continue",
+] as const;
+export type StartStopContinueColumn =
+  (typeof START_STOP_CONTINUE_COLUMNS)[number];
+
+/**
+ * Retrospective Column Types for 4 Ls
+ */
+export const FOUR_LS_COLUMNS = ["loved", "loathed", "learned", "longed"] as const;
+export type FourLsColumn = (typeof FOUR_LS_COLUMNS)[number];
+
+/**
+ * Union of all column types
+ */
+export type RetrospectiveColumn =
+  | MadSadGladColumn
+  | WhatWentWellColumn
+  | StartStopContinueColumn
+  | FourLsColumn;
+
+/**
+ * Retrospective Session
+ * Main session configuration and state
+ */
+export interface RetrospectiveSession {
+  _id: ObjectId;
+  sprintId: ObjectId;
+  format: RetrospectiveFormat;
+  phase: RetrospectivePhase;
+  facilitatorId: string; // Clerk user ID
+  settings: {
+    allowAnonymous: boolean;
+    votesPerPerson: number;
+    timerMinutes: number | null;
+  };
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/**
+ * Retrospective Card
+ * Individual sticky note/card in a retrospective
+ */
+export interface RetrospectiveCard {
+  _id: ObjectId;
+  sessionId: ObjectId;
+  sprintId: ObjectId;
+  column: RetrospectiveColumn;
+  content: string;
+  authorId: string; // Clerk user ID
+  isAnonymous: boolean;
+  votes: string[]; // Array of Clerk user IDs who voted
+  groupId: string | null; // For grouping similar cards
+  groupTitle: string | null; // Title for the group
+  order: number; // For ordering within column
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/**
+ * Retrospective Action Item
+ * Action items created during retrospective
+ */
+export interface RetrospectiveActionItem {
+  _id: ObjectId;
+  sessionId: ObjectId;
+  sprintId: ObjectId;
+  title: string;
+  description: string;
+  assigneeId: string | null; // Clerk user ID
+  status: RetrospectiveActionStatus;
+  dueDate: Date | null;
+  cardIds: ObjectId[]; // Related cards that led to this action
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/**
+ * Retrospective Session Form Data
+ */
+export interface RetrospectiveSessionFormData {
+  sprintId: string;
+  format: RetrospectiveFormat;
+  facilitatorId: string;
+  settings: {
+    allowAnonymous: boolean;
+    votesPerPerson: number;
+    timerMinutes: number | null;
+  };
+}
+
+/**
+ * Retrospective Card Form Data
+ */
+export interface RetrospectiveCardFormData {
+  sessionId: string;
+  sprintId: string;
+  column: RetrospectiveColumn;
+  content: string;
+  authorId: string;
+  isAnonymous: boolean;
+}
+
+/**
+ * Retrospective Action Item Form Data
+ */
+export interface RetrospectiveActionFormData {
+  sessionId: string;
+  sprintId: string;
+  title: string;
+  description: string;
+  assigneeId: string | null;
+  dueDate: Date | null;
+  cardIds: string[];
+}
+
+/**
+ * Retrospective Summary
+ * Complete summary of a retrospective session
+ */
+export interface RetrospectiveSummary {
+  session: RetrospectiveSession;
+  cards: RetrospectiveCard[];
+  actions: RetrospectiveActionItem[];
+  stats: {
+    totalCards: number;
+    totalVotes: number;
+    totalActions: number;
+    participantCount: number;
+    completedActions: number;
+  };
+}

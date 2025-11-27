@@ -386,3 +386,164 @@ export type CommentUpdateInput = z.infer<typeof commentUpdateSchema>;
 
 export type TaskQueryParams = z.infer<typeof taskQuerySchema>;
 export type SprintQueryParams = z.infer<typeof sprintQuerySchema>;
+
+// ============================================================================
+// RETROSPECTIVE SCHEMAS
+// ============================================================================
+
+/**
+ * Schema for creating a retrospective session
+ */
+export const retrospectiveSessionCreateSchema = z.object({
+  sprintId: objectIdSchema,
+  format: z.enum([
+    "mad-sad-glad",
+    "what-went-well",
+    "start-stop-continue",
+    "4ls",
+  ]),
+  facilitatorId: userIdSchema,
+  settings: z.object({
+    allowAnonymous: z.boolean().default(true),
+    votesPerPerson: z
+      .number()
+      .int()
+      .min(1, "Must allow at least 1 vote per person")
+      .max(10, "Max 10 votes per person")
+      .default(3),
+    timerMinutes: z
+      .number()
+      .int()
+      .positive()
+      .max(60, "Timer cannot exceed 60 minutes")
+      .nullable()
+      .default(null),
+  }),
+});
+
+/**
+ * Schema for updating a retrospective session
+ */
+export const retrospectiveSessionUpdateSchema = z.object({
+  phase: z
+    .enum([
+      "setup",
+      "collecting",
+      "grouping",
+      "voting",
+      "discussing",
+      "actions",
+      "completed",
+    ])
+    .optional(),
+  settings: z
+    .object({
+      allowAnonymous: z.boolean().optional(),
+      votesPerPerson: z.number().int().min(1).max(10).optional(),
+      timerMinutes: z.number().int().positive().max(60).nullable().optional(),
+    })
+    .optional(),
+});
+
+/**
+ * Schema for creating a retrospective card
+ */
+export const retrospectiveCardCreateSchema = z.object({
+  sessionId: objectIdSchema,
+  sprintId: objectIdSchema,
+  column: z.string().min(1, "Column is required"),
+  content: z
+    .string()
+    .min(1, "Card content is required")
+    .max(500, "Card content must be 500 characters or less"),
+  authorId: userIdSchema,
+  isAnonymous: z.boolean().default(false),
+});
+
+/**
+ * Schema for updating a retrospective card
+ */
+export const retrospectiveCardUpdateSchema = z.object({
+  content: z
+    .string()
+    .min(1, "Card content is required")
+    .max(500, "Card content must be 500 characters or less")
+    .optional(),
+  groupId: z.string().nullable().optional(),
+  groupTitle: z.string().max(100).nullable().optional(),
+  order: z.number().int().nonnegative().optional(),
+});
+
+/**
+ * Schema for voting on a card
+ */
+export const retrospectiveCardVoteSchema = z.object({
+  userId: userIdSchema,
+  action: z.enum(["add", "remove"]),
+});
+
+/**
+ * Schema for creating a retrospective action item
+ */
+export const retrospectiveActionCreateSchema = z.object({
+  sessionId: objectIdSchema,
+  sprintId: objectIdSchema,
+  title: z
+    .string()
+    .min(1, "Action title is required")
+    .max(200, "Action title must be 200 characters or less"),
+  description: z
+    .string()
+    .max(1000, "Action description must be 1000 characters or less")
+    .default(""),
+  assigneeId: userIdSchema.nullable().default(null),
+  dueDate: z.coerce.date().nullable().default(null),
+  cardIds: z.array(objectIdSchema).default([]),
+});
+
+/**
+ * Schema for updating a retrospective action item
+ */
+export const retrospectiveActionUpdateSchema = z.object({
+  title: z
+    .string()
+    .min(1, "Action title is required")
+    .max(200, "Action title must be 200 characters or less")
+    .optional(),
+  description: z
+    .string()
+    .max(1000, "Action description must be 1000 characters or less")
+    .optional(),
+  assigneeId: userIdSchema.nullable().optional(),
+  status: z.enum(["todo", "in_progress", "done"]).optional(),
+  dueDate: z.coerce.date().nullable().optional(),
+  cardIds: z.array(objectIdSchema).optional(),
+});
+
+// ============================================================================
+// RETROSPECTIVE TYPE EXPORTS
+// ============================================================================
+
+export type RetrospectiveSessionCreateInput = z.infer<
+  typeof retrospectiveSessionCreateSchema
+>;
+export type RetrospectiveSessionUpdateInput = z.infer<
+  typeof retrospectiveSessionUpdateSchema
+>;
+
+export type RetrospectiveCardCreateInput = z.infer<
+  typeof retrospectiveCardCreateSchema
+>;
+export type RetrospectiveCardUpdateInput = z.infer<
+  typeof retrospectiveCardUpdateSchema
+>;
+export type RetrospectiveCardVoteInput = z.infer<
+  typeof retrospectiveCardVoteSchema
+>;
+
+export type RetrospectiveActionCreateInput = z.infer<
+  typeof retrospectiveActionCreateSchema
+>;
+export type RetrospectiveActionUpdateInput = z.infer<
+  typeof retrospectiveActionUpdateSchema
+>;

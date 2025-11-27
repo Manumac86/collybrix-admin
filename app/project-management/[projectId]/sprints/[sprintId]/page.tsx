@@ -2,8 +2,24 @@
 
 import { useState, use, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, LayoutList, Target } from "lucide-react";
-import { useSprint, useSprintTasks, useUpdateSprint, useDeleteSprint, useSprints } from "@/hooks/pm";
+import { Loader2, Target } from "lucide-react";
+import {
+  useSprint,
+  useSprintTasks,
+  useUpdateSprint,
+  useDeleteSprint,
+  useSprints,
+  useRetrospective,
+  useCreateRetrospective,
+  useUpdateRetrospective,
+  useCreateRetroCard,
+  useVoteRetroCard,
+  useDeleteRetroCard,
+  useCreateRetroAction,
+  useUpdateRetroAction,
+  useDeleteRetroAction,
+  useUsers,
+} from "@/hooks/pm";
 import { SprintFormData } from "@/types/pm";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -12,6 +28,10 @@ import { SprintDialog } from "@/components/pm/sprint/sprint-dialog";
 import { CompleteSprintDialog } from "@/components/pm/sprint/complete-sprint-dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  RetrospectiveBoard,
+  ActionItemsList,
+} from "@/components/pm/retrospective";
 import { toast } from "sonner";
 
 interface SprintDetailPageProps {
@@ -38,11 +58,37 @@ export default function SprintDetailPage({ params }: SprintDetailPageProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isCompleteDialogOpen, setIsCompleteDialogOpen] = useState(false);
 
-  const { sprint, isLoading: isLoadingSprint, mutate: mutateSprint } = useSprint(sprintId);
-  const { tasks, isLoading: isLoadingTasks, mutate: mutateTasks } = useSprintTasks(sprintId);
+  const {
+    sprint,
+    isLoading: isLoadingSprint,
+    mutate: mutateSprint,
+  } = useSprint(sprintId);
+  const {
+    tasks,
+    isLoading: isLoadingTasks,
+    mutate: mutateTasks,
+  } = useSprintTasks(sprintId);
   const { sprints: allSprints } = useSprints(projectId);
-  const { trigger: updateSprint, isMutating: isUpdating } = useUpdateSprint(sprintId);
-  const { trigger: deleteSprint, isMutating: isDeleting } = useDeleteSprint(sprintId);
+  const { users } = useUsers();
+  const { trigger: updateSprint, isMutating: isUpdating } =
+    useUpdateSprint(sprintId);
+  const { trigger: deleteSprint, isMutating: isDeleting } =
+    useDeleteSprint(sprintId);
+
+  // Retrospective hooks
+  const {
+    retrospective,
+    isLoading: isLoadingRetro,
+    mutate: mutateRetro,
+  } = useRetrospective(sprintId);
+  const { trigger: createRetrospective } = useCreateRetrospective();
+  const { trigger: updateRetrospective } = useUpdateRetrospective(sprintId);
+  const { trigger: createRetroCard } = useCreateRetroCard(sprintId);
+  const { trigger: voteRetroCard } = useVoteRetroCard(sprintId);
+  const { trigger: deleteRetroCard } = useDeleteRetroCard(sprintId);
+  const { trigger: createRetroAction } = useCreateRetroAction(sprintId);
+  const { trigger: updateRetroAction } = useUpdateRetroAction(sprintId);
+  const { trigger: deleteRetroAction } = useDeleteRetroAction(sprintId);
 
   // Filter available sprints (active or planning, excluding current sprint)
   const availableSprints = useMemo(() => {
@@ -65,7 +111,9 @@ export default function SprintDetailPage({ params }: SprintDetailPageProps) {
       setIsDialogOpen(false);
       mutateSprint();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to update sprint");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to update sprint"
+      );
     }
   };
 
@@ -87,7 +135,9 @@ export default function SprintDetailPage({ params }: SprintDetailPageProps) {
         }),
       });
 
-      toast.success(`${sprint.name} started with ${committedPoints} committed points`);
+      toast.success(
+        `${sprint.name} started with ${committedPoints} committed points`
+      );
       mutateSprint();
     } catch (error) {
       toast.error("Failed to start sprint");
@@ -173,6 +223,77 @@ export default function SprintDetailPage({ params }: SprintDetailPageProps) {
     }
   };
 
+  // Retrospective handlers
+  const handleStartRetro = async () => {
+    try {
+      await createRetrospective({
+        sprintId,
+        format: "mad-sad-glad",
+        settings: {
+          allowAnonymous: true,
+          votesPerPerson: 3,
+          timerMinutes: null,
+        },
+      });
+      toast.success("Retrospective started!");
+      mutateRetro();
+    } catch (error) {
+      toast.error("Failed to start retrospective");
+    }
+  };
+
+  const handleAddCard = async (
+    column: string,
+    content: string,
+    isAnonymous: boolean
+  ) => {
+    await createRetroCard({
+      column,
+      content,
+      isAnonymous,
+    });
+    mutateRetro();
+  };
+
+  const handleVoteCard = async (cardId: string, action: "add" | "remove") => {
+    await voteRetroCard({ cardId, action });
+    mutateRetro();
+  };
+
+  const handleDeleteCard = async (cardId: string) => {
+    await deleteRetroCard({ cardId });
+    mutateRetro();
+  };
+
+  const handleCreateAction = async (data: {
+    title: string;
+    description?: string;
+    assigneeId?: string | null;
+    dueDate?: Date | null;
+  }) => {
+    await createRetroAction(data);
+    mutateRetro();
+  };
+
+  const handleUpdateAction = async (
+    actionId: string,
+    data: {
+      title?: string;
+      description?: string;
+      assigneeId?: string | null;
+      status?: "todo" | "in_progress" | "done";
+      dueDate?: Date | null;
+    }
+  ) => {
+    await updateRetroAction({ actionId, ...data });
+    mutateRetro();
+  };
+
+  const handleDeleteAction = async (actionId: string) => {
+    await deleteRetroAction({ actionId });
+    mutateRetro();
+  };
+
   if (isLoadingSprint) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -211,7 +332,9 @@ export default function SprintDetailPage({ params }: SprintDetailPageProps) {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-semibold text-blue-900 mb-1">Ready to plan?</h3>
+                <h3 className="font-semibold text-blue-900 mb-1">
+                  Ready to plan?
+                </h3>
                 <p className="text-sm text-blue-700">
                   Add tasks to this sprint and commit when ready.
                 </p>
@@ -257,7 +380,9 @@ export default function SprintDetailPage({ params }: SprintDetailPageProps) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card>
               <CardHeader>
-                <CardTitle className="text-sm font-medium">Total Tasks</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Total Tasks
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold">{tasks.length}</p>
@@ -266,7 +391,9 @@ export default function SprintDetailPage({ params }: SprintDetailPageProps) {
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-sm font-medium">Story Points</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Story Points
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold">
@@ -277,7 +404,9 @@ export default function SprintDetailPage({ params }: SprintDetailPageProps) {
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-sm font-medium">Completion Rate</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Completion Rate
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold">
@@ -328,7 +457,9 @@ export default function SprintDetailPage({ params }: SprintDetailPageProps) {
                 </div>
               ) : tasks.length === 0 ? (
                 <div className="text-center py-8 border-2 border-dashed rounded-lg">
-                  <p className="text-sm text-muted-foreground">No tasks in sprint</p>
+                  <p className="text-sm text-muted-foreground">
+                    No tasks in sprint
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -343,7 +474,9 @@ export default function SprintDetailPage({ params }: SprintDetailPageProps) {
                           <Badge variant="outline">{task.type}</Badge>
                           <Badge variant="outline">{task.status}</Badge>
                           {task.storyPoints && (
-                            <Badge variant="outline">{task.storyPoints} pts</Badge>
+                            <Badge variant="outline">
+                              {task.storyPoints} pts
+                            </Badge>
                           )}
                         </div>
                       </div>
@@ -368,25 +501,55 @@ export default function SprintDetailPage({ params }: SprintDetailPageProps) {
 
         {/* Retrospective Tab */}
         {sprint.status === "completed" && (
-          <TabsContent value="retrospective">
-            <Card>
-              <CardHeader>
-                <CardTitle>Sprint Retrospective</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {sprint.retrospectiveNotes ? (
-                  <p className="text-muted-foreground whitespace-pre-wrap">
-                    {sprint.retrospectiveNotes}
-                  </p>
-                ) : (
-                  <div className="text-center py-8 border-2 border-dashed rounded-lg">
+          <TabsContent value="retrospective" className="space-y-6">
+            {isLoadingRetro ? (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted-foreground" />
+                </CardContent>
+              </Card>
+            ) : !retrospective ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Sprint Retrospective</CardTitle>
+                </CardHeader>
+                <CardContent className="py-12 text-center">
+                  <div className="max-w-md mx-auto space-y-4">
                     <p className="text-sm text-muted-foreground">
-                      No retrospective notes yet
+                      No retrospective session yet. Start one to reflect on the
+                      sprint!
                     </p>
+                    <Button onClick={handleStartRetro}>
+                      Start Retrospective
+                    </Button>
                   </div>
-                )}
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            ) : (
+              <>
+                {/* Retrospective Board */}
+                <RetrospectiveBoard
+                  format={retrospective.session.format}
+                  cards={retrospective.cards}
+                  users={users}
+                  onAddCard={handleAddCard}
+                  onVoteCard={handleVoteCard}
+                  onDeleteCard={handleDeleteCard}
+                  allowAnonymous={retrospective.session.settings.allowAnonymous}
+                  maxVotes={retrospective.session.settings.votesPerPerson}
+                />
+
+                {/* Action Items */}
+                <ActionItemsList
+                  actions={retrospective.actions}
+                  cards={retrospective.cards}
+                  users={users}
+                  onCreateAction={handleCreateAction}
+                  onUpdateAction={handleUpdateAction}
+                  onDeleteAction={handleDeleteAction}
+                />
+              </>
+            )}
           </TabsContent>
         )}
       </Tabs>

@@ -244,7 +244,9 @@ export async function DELETE(
     // Remove tag from all tasks
     await tasksCollection.updateMany(
       { tags: new ObjectId(id) },
-      { $pull: { tags: new ObjectId(id) } }
+      {
+        $pull: { tags: new ObjectId(id) },
+      }
     );
 
     return NextResponse.json({

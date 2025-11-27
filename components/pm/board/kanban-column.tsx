@@ -1,7 +1,10 @@
 "use client";
 
 import { useDroppable } from "@dnd-kit/core";
-import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { memo, useState } from "react";
 import { Plus, ChevronDown, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -59,7 +62,7 @@ function KanbanColumnComponent({
       )}
     >
       {/* Column Header */}
-      <div className="flex items-center justify-between gap-2 border-b bg-card p-3">
+      <div className="flex items-center justify-between gap-2 border-b bg-card p-3 rounded-t-lg">
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="flex items-center gap-2 flex-1 text-left hover:opacity-70 transition-opacity"
@@ -70,7 +73,9 @@ function KanbanColumnComponent({
             <ChevronDown className="h-4 w-4 text-muted-foreground" />
           )}
           <div className="flex items-center gap-2">
-            <div className={cn("h-3 w-3 rounded-full", STATUS_COLORS[status])} />
+            <div
+              className={cn("h-3 w-3 rounded-full", STATUS_COLORS[status])}
+            />
             <h3 className="font-semibold text-sm text-foreground">{title}</h3>
           </div>
         </button>
@@ -108,7 +113,10 @@ function KanbanColumnComponent({
           className="flex-1 overflow-y-auto p-3 space-y-3 min-h-[200px]"
           style={{ maxHeight: "calc(100vh - 250px)" }}
         >
-          <SortableContext items={taskIds} strategy={verticalListSortingStrategy}>
+          <SortableContext
+            items={taskIds}
+            strategy={verticalListSortingStrategy}
+          >
             {tasks.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-32 text-muted-foreground text-sm">
                 <p>No tasks</p>

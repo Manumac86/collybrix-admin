@@ -178,7 +178,7 @@ export default function PMLayout({ children, params }: PMLayoutProps) {
                         value={tab.value}
                         className={cn(
                           "h-12 rounded-none border-b-2 border-transparent px-4 gap-2",
-                          "data-[state=active]:border-primary data-[state=active]:bg-transparent",
+                          "data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:border-b-transparent rounded-t-lg",
                           "hover:bg-gray-50 dark:hover:bg-gray-900"
                         )}
                       >
