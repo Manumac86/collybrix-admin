@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -11,7 +12,9 @@ import {
   Calculator,
   Receipt,
   Sparkles,
+  Kanban,
 } from "lucide-react";
+import { UserButton } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
 import { useTheme } from "./theme-provider";
 import { Logo } from "./logo";
@@ -19,6 +22,7 @@ import { Logo } from "./logo";
 export function Sidebar() {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
 
   const routes = [
     {
@@ -30,6 +34,11 @@ export function Sidebar() {
       label: "Projects",
       icon: Briefcase,
       href: "/projects",
+    },
+    {
+      label: "Project Management",
+      icon: Kanban,
+      href: "/project-management",
     },
     {
       label: "Estimations",
@@ -51,6 +60,10 @@ export function Sidebar() {
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
   };
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <aside className="w-64 border-r border-border bg-sidebar text-sidebar-foreground h-screen sticky top-0 flex flex-col">
@@ -88,8 +101,22 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* Footer with Theme Toggle */}
+      {/* Footer with User Profile and Theme Toggle */}
       <div className="p-4 border-t border-sidebar-border space-y-3">
+        {/* User Profile */}
+        <div className="flex items-center gap-3 px-4 py-2">
+          <UserButton
+            afterSignOutUrl="/"
+            appearance={{
+              elements: {
+                avatarBox: "w-10 h-10"
+              }
+            }}
+          />
+          <span className="text-sm font-medium text-sidebar-foreground">My Account</span>
+        </div>
+
+        {/* Theme Toggle */}
         <button
           onClick={toggleTheme}
           className={cn(
@@ -98,7 +125,13 @@ export function Sidebar() {
           )}
           aria-label="Toggle theme"
         >
-          {theme === "light" ? (
+          {!mounted ? (
+            // Render a neutral placeholder during SSR to avoid hydration mismatch
+            <>
+              <div className="w-5 h-5" />
+              <span className="font-medium text-sm">Theme</span>
+            </>
+          ) : theme === "light" ? (
             <>
               <Moon className="w-5 h-5" />
               <span className="font-medium text-sm">Dark Mode</span>

@@ -116,7 +116,7 @@ Projects have the following structure:
 ### API Patterns
 
 - All API routes use Next.js App Router route handlers
-- Errors are logged with `[v0]` prefix for easy filtering
+- Errors are logged with `[ERROR]` prefix for easy filtering
 - API responses include error details in development for debugging
 - MongoDB ObjectId is used for project IDs
 - All mutations (POST/PUT) automatically update `createdAt`/`updatedAt` timestamps
@@ -165,7 +165,7 @@ This will insert 6 sample projects if the database is empty.
 1. Create route handler in `app/api/[route]/route.ts`
 2. Import MongoDB client: `import clientPromise from "@/lib/mongodb"`
 3. Use try-catch with descriptive error messages
-4. Log with `[v0]` prefix for consistency
+4. Log with `[ERROR]` prefix for consistency
 
 ### Adding a New Component
 
@@ -179,3 +179,353 @@ This will insert 6 sample projects if the database is empty.
 1. Use React Hook Form + Zod
 2. Import resolvers: `@hookform/resolvers/zod`
 3. Follow patterns in `add-project-dialog.tsx` or `edit-project-dialog.tsx`
+
+### Frontend State Management & Architecture Guidelines
+
+**IMPORTANT**: Follow these guidelines for all frontend development to ensure consistent, maintainable, and performant React applications.
+
+**Core Principles:**
+
+1. 🔄 **SWR for data** - automatic caching, revalidation, deduplication
+2. 🎯 **Context for UI state** - view modes, selections, UI-only state
+3. ⚡ **Server Components first** - reduce client JavaScript
+4. 🧩 **Composition over complexity** - small, focused components
+5. 🚫 **Avoid useEffect** - use hooks, memos, and proper patterns
+6. 📝 **Simple business logic** - pure functions, testable utilities
+
+This pattern provides better performance, maintainability, and aligns with Next.js 16+ best practices.
+
+#### PARAMS in API Routes
+
+```typescript
+// app/api/projects/[id]/route.ts
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  return NextResponse.json({ id, message: "Hello, world!" });
+}
+```
+
+**Key points:**
+
+- `params` is a promise that resolves to an object with the parameters
+- `await params` resolves the promise
+- `const { id } = await params` destructures the object to get the id
+- `return NextResponse.json({ id, message: "Hello, world!" })` returns the id and message as a JSON response
+
+#### State Management Pattern: SWR + Context API
+
+**DO NOT use Zustand** or other global state management libraries. Instead, use the SWR + Context API pattern for better control, caching, and React Server Component optimization.
+
+#### Data Fetching with SWR
+
+**Create custom hooks wrapping `useSWR`** for all data fetching operations:
+
+```typescript
+// modules/{feature}/hooks/use{Resource}.ts
+import useSWR from "swr";
+
+const fetcher = (url: string) =>
+  fetch(url).then((res) => {
+    if (!res.ok) throw new Error("Failed to fetch");
+    return res.json();
+  });
+
+export const useUsers = (options = {}) => {
+  const { search = "", page = 1 } = options;
+
+  const params = new URLSearchParams();
+  if (search) params.append("search", search);
+  params.append("page", page.toString());
+
+  const { data, error, isLoading, mutate } = useSWR(
+    `/api/users?${params.toString()}`,
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 60000, // Cache for 1 minute
+    }
+  );
+
+  return {
+    users: data?.users || [],
+    total: data?.total || 0,
+    isLoading,
+    error,
+    mutate, // For manual cache updates
+  };
+};
+```
+
+**Key points:**
+
+- URL becomes the cache key (automatic deduplication)
+- Include query params in the URL for proper caching
+- Return destructured data with sensible defaults
+- Expose `mutate` for cache invalidation
+- Configure `revalidateOnFocus` and `dedupingInterval` appropriately
+
+#### Mutations with SWR
+
+**Create separate hooks for mutations** (create, update, delete):
+** Reference to https://swr.vercel.app/docs/mutation **
+
+```typescript
+// modules/{feature}/hooks/use{Resource}Mutations.ts
+import { useSWRConfig } from "swr";
+
+export const useTaskMutations = () => {
+  const { mutate } = useSWRMutation();
+
+  const createTask = async (data: TaskCreate) => {
+    const res = await fetch("/api/tasks", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+
+    if (!res.ok) throw new Error("Failed to create");
+
+    // Invalidate cache to refetch
+    mutate((key) => typeof key === "string" && key.startsWith("/api/tasks"));
+
+    return res.json();
+  };
+
+  const updateTask = async (id: string, payload: TaskUpdate) => {
+    // Optimistic update
+    mutate(
+      `/api/tasks/${id}`,
+      async () => {
+        const res = await fetch(`/api/tasks/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) throw new Error("Failed to update");
+        return res.json();
+      },
+      { optimisticData: payload, revalidate: true }
+    );
+  };
+
+  return { createTask, updateTask, deleteTask };
+};
+```
+
+**Key points:**
+
+- Use `useSWRConfig().mutate` for global cache updates
+- Implement optimistic updates for better UX
+- Invalidate related caches after mutations
+- Return async functions for components to await
+
+#### Context API for UI State Only
+
+**Use Context sparingly** - only for UI state that needs to be shared across deep component trees:
+
+```typescript
+// modules/{feature}/context/{Feature}Context.tsx
+"use client";
+
+import { createContext, useContext, useState, ReactNode } from "react";
+
+type TasksUIState = {
+  viewMode: "list" | "kanban";
+  selectionMode: boolean;
+  selectedIds: string[];
+};
+
+const TasksContext = createContext<TasksUIState | undefined>(undefined);
+
+export const TasksProvider = ({ children }: { children: ReactNode }) => {
+  const [viewMode, setViewMode] = useState<"list" | "kanban">("list");
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
+  return (
+    <TasksContext.Provider
+      value={{
+        viewMode,
+        setViewMode,
+        selectionMode,
+        setSelectionMode,
+        selectedIds,
+        setSelectedIds,
+      }}
+    >
+      {children}
+    </TasksContext.Provider>
+  );
+};
+
+export const useTasksUI = () => {
+  const context = useContext(TasksContext);
+  if (!context) throw new Error("useTasksUI must be used within TasksProvider");
+  return context;
+};
+```
+
+**Guidelines for Context usage:**
+
+- ❌ **DO NOT** use for data fetching (use SWR hooks instead)
+- ✅ **DO** use for UI state (view modes, selections, modals)
+- ❌ **DO NOT** create contexts for every component
+- ✅ **DO** prefer component composition and props when possible
+
+#### React Server Components (RSC) First
+
+**Prioritize Server Components** and only use Client Components when absolutely necessary:
+
+**✅ Server Components (default):**
+
+- Pure display components
+- Components that fetch data at build/request time
+- Static content, layouts, empty states
+- Components without interactivity
+
+**❌ Client Components (use sparingly):**
+
+- Components using hooks (`useState`, `useEffect`, etc.)
+- Event handlers (`onClick`, `onChange`, etc.)
+- Browser APIs (`localStorage`, `window`, etc.)
+- Third-party libraries requiring client-side JS
+
+**Push "use client" to the smallest boundary possible:**
+
+```typescript
+// ❌ BAD: Entire dashboard is client
+"use client";
+
+export function TasksDashboard() {
+  const { tasks } = useTasks();
+  return (
+    <div>
+      <TasksHeader />
+      <TasksFilters />
+      <TasksList tasks={tasks} />
+    </div>
+  );
+}
+
+// ✅ GOOD: Only interactive parts are client
+export function TasksDashboard() {
+  return (
+    <div>
+      <TasksHeader /> {/* Server component */}
+      <TasksFiltersClient /> {/* Client - has inputs */}
+      <TasksListClient /> {/* Client - has interactions */}
+    </div>
+  );
+}
+```
+
+#### Component Composition Over Complexity
+
+**Keep components small and focused:**
+
+```typescript
+// ❌ BAD: 500-line component with everything
+'use client';
+
+export function TasksDashboard() {
+  const [filters, setFilters] = useState(...);
+  const [viewMode, setViewMode] = useState(...);
+  const [selection, setSelection] = useState(...);
+
+  // 400 lines of logic...
+
+  return (/* 100 lines of JSX */);
+}
+
+// ✅ GOOD: Composed from smaller components
+export function TasksDashboard() {
+  return (
+    <TasksProvider>
+      <TasksHeader />
+      <TasksToolbar />
+      <TasksContent />
+    </TasksProvider>
+  );
+}
+```
+
+**Benefits:**
+
+- Easier to test individual pieces
+- Better code splitting
+- Clearer separation of concerns
+- Easier to optimize performance
+
+#### Avoid useEffect When Possible
+
+**Replace `useEffect` with better patterns:**
+
+```typescript
+// ❌ BAD: useEffect for data fetching
+useEffect(() => {
+  fetchData();
+}, [dependency]);
+
+// ✅ GOOD: SWR handles it
+const { data } = useSWR("/api/data", fetcher);
+
+// ❌ BAD: useEffect for derived state
+useEffect(() => {
+  setFiltered(tasks.filter((t) => t.status === filter));
+}, [tasks, filter]);
+
+// ✅ GOOD: useMemo
+const filtered = useMemo(
+  () => tasks.filter((t) => t.status === filter),
+  [tasks, filter]
+);
+
+// ❌ BAD: useEffect for URL sync
+useEffect(() => {
+  const params = new URLSearchParams({ filter });
+  window.history.replaceState({}, "", `?${params}`);
+}, [filter]);
+
+// ✅ GOOD: URL as source of truth in SWR key
+const searchParams = useSearchParams();
+const filter = searchParams.get("filter") || "";
+const { data } = useSWR(`/api/tasks?filter=${filter}`, fetcher);
+```
+
+**When `useEffect` IS appropriate:**
+
+- Third-party library initialization
+- DOM manipulation that can't be done declaratively
+- Setting up/cleaning up subscriptions
+- Browser API integration (but consider Server Components first)
+
+#### Business Logic Simplicity
+
+**Keep business logic simple and testable:**
+
+```typescript
+// ✅ Extract complex logic to utility functions
+// utils/taskHelpers.ts
+export const calculateTaskStats = (tasks: Task[]) => ({
+  total: tasks.length,
+  pending: tasks.filter((t) => t.status === "pending").length,
+  completed: tasks.filter((t) => t.status === "completed").length,
+});
+
+// Component stays simple
+export function TasksStats({ tasks }: { tasks: Task[] }) {
+  const stats = calculateTaskStats(tasks);
+  return <Stats {...stats} />;
+}
+```
+
+**Benefits:**
+
+- Pure functions are easy to test
+- Logic is reusable across components
+- Components focus on presentation
+- Better TypeScript inference

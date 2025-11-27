@@ -19,7 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useDeleteProject, useProjects } from "@/hooks/projects";
-import { Search, MoreHorizontal } from "lucide-react";
+import { Search, MoreHorizontal, Eye } from "lucide-react";
 import { AddProjectDialog } from "./add-project-dialog";
 import { EditProjectDialog } from "./edit-project-dialog";
 import { DeleteProjectDialog } from "./delete-project-dialog";
@@ -269,8 +269,18 @@ export function ProjectsTable() {
                               />
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
-                              <Link href={`/projects/${project._id}`}>
-                                View Details
+                              <Link
+                                href={`/projects/${project._id}`}
+                                className="w-full rounded-md !p-0"
+                              >
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="w-full rounded-md justify-start gap-2 m-0"
+                                >
+                                  <Eye className="w-4 h-4" />
+                                  View Details
+                                </Button>
                               </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>

@@ -8,67 +8,123 @@ export const getMonthlyRevenue = async (): Promise<
 > => {
   const client = await connectToDatabase();
   const db = client.db("collybrix");
-  const data = await db.collection<WithId<Project>>("projects").aggregate([
-    {
-      // Match only active projects
-      $match: { status: "active" },
-    },
-    {
-      // Project month and mrr
-      $project: {
-        mmr: 1,
-        month: { $substr: ["$startedDate", 5, 2] }, // extracts month as MM
-        year: { $substr: ["$startedDate", 0, 4] }, // extracts year as YYYY
-      },
-    },
-    {
-      // Group by year and month (to get monthly revenue)
-      $group: {
-        _id: { year: "$year", month: "$month" },
-        revenue: { $sum: "$mmr" },
-      },
-    },
-    {
-      // Sort by year and month descending (optional)
-      $sort: { "_id.month": 1, "_id.year": 1 },
-    },
-    {
-      // Format result to match requested structure
-      $project: {
-        _id: 0,
-        month: {
-          $concat: [
-            {
-              $arrayElemAt: [
-                [
-                  "",
-                  "Jan",
-                  "Feb",
-                  "Mar",
-                  "Apr",
-                  "May",
-                  "Jun",
-                  "Jul",
-                  "Aug",
-                  "Sep",
-                  "Oct",
-                  "Nov",
-                  "Dec",
-                ],
-                { $toInt: "$_id.month" },
-              ],
-            },
-            " ",
-            "$_id.year",
-          ],
-        },
-        revenue: 1,
-      },
-    },
-  ]);
+  // Only include projects that are not cancelled, not closed, not not started.
+  // Sum mmr per month (YYYY-MM), using startedDate
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sept",
+    "Oct",
+    "Nov",
+    "Dev",
+  ];
 
-  const result = await data.toArray();
-  return result as { month: string; revenue: number }[];
+  // Step 1: Fetch revenue data from the database as before
+  const data = await db
+    .collection<WithId<Project>>("projects")
+    .aggregate([
+      {
+        $match: {
+          status: { $nin: ["cancelled", "not started", "closed"] },
+          mmr: { $ne: null },
+          startedDate: { $ne: null },
+        },
+      },
+      {
+        $addFields: {
+          startedDateObj: { $toDate: "$startedDate" },
+        },
+      },
+      {
+        $project: {
+          mmr: 1,
+          monthNum: { $month: "$startedDateObj" },
+          yearNum: { $year: "$startedDateObj" },
+        },
+      },
+      {
+        $group: {
+          _id: { year: "$yearNum", month: "$monthNum" },
+          revenue: { $sum: "$mmr" },
+        },
+      },
+      {
+        $sort: { "_id.year": 1, "_id.month": 1 },
+      },
+      {
+        $project: {
+          _id: 0,
+          month: {
+            $concat: [
+              { $arrayElemAt: [monthNames, { $subtract: ["$_id.month", 1] }] },
+              " ",
+              { $toString: "$_id.year" },
+            ],
+          },
+          yearNum: "$_id.year",
+          monthNum: "$_id.month",
+          revenue: 1,
+        },
+      },
+    ])
+    .toArray();
+
+  // Step 2: Always add (or update) the current month entry
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonthNum = now.getMonth() + 1; // JS: 0-indexed, Mongo: 1-indexed
+  const currentMonthName = monthNames[now.getMonth()];
+  const currentMonthLabel = `${currentMonthName} ${currentYear}`;
+
+  // Look for an entry with the current month. If not found, add it with revenue 0.
+  let found = false;
+  for (const entry of data) {
+    if (entry.yearNum === currentYear && entry.monthNum === currentMonthNum) {
+      found = true;
+      break;
+    }
+  }
+  if (!found) {
+    data.push({
+      month: currentMonthLabel,
+      yearNum: currentYear,
+      monthNum: currentMonthNum,
+      revenue: 0,
+    });
+    // Sort the array again to ensure order
+    data.sort((a, b) =>
+      a.yearNum === b.yearNum ? a.monthNum - b.monthNum : a.yearNum - b.yearNum
+    );
+  }
+
+  // Remove the helper yearNum and monthNum before returning
+  const result = data.map(({ month, revenue }) => ({ month, revenue }));
+
+  const finalRevenueData = Array.isArray(result)
+    ? result.reduce(
+        (
+          acc: { month: string; revenue: number }[],
+          curr: { month: string; revenue: number }
+        ) => {
+          const prevRevenue = acc.length > 0 ? acc[acc.length - 1].revenue : 0;
+          acc.push({
+            ...curr,
+            revenue: prevRevenue + curr.revenue,
+          });
+          return acc;
+        },
+        []
+      )
+    : [];
+
+  // const result = await data.toArray();
+  return finalRevenueData as { month: string; revenue: number }[];
 };
 
 export const getProjectPipelineStatusDistribution = async (): Promise<

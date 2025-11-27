@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,40 +10,49 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { Button } from "@/components/ui/button"
-import { Trash2 } from "lucide-react"
-import { useRouter } from "next/navigation"
-import { projectsData } from "@/lib/data"
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { projectsData } from "@/lib/data";
+import Link from "next/link";
 
 interface DeleteProjectDialogProps {
-  projectId: number
-  projectName: string
-  onDelete?: () => void
+  projectId: number;
+  projectName: string;
+  onDelete?: () => void;
 }
 
-export function DeleteProjectDialog({ projectId, projectName, onDelete }: DeleteProjectDialogProps) {
-  const router = useRouter()
-  const [isOpen, setIsOpen] = useState(false)
+export function DeleteProjectDialog({
+  projectId,
+  projectName,
+  onDelete,
+}: DeleteProjectDialogProps) {
+  const router = useRouter();
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleDelete = () => {
-    const index = projectsData.findIndex((p) => p.id === projectId)
+    const index = projectsData.findIndex((p) => p.id === projectId);
     if (index !== -1) {
-      projectsData.splice(index, 1)
+      projectsData.splice(index, 1);
     }
-    setIsOpen(false)
+    setIsOpen(false);
     if (onDelete) {
-      onDelete()
+      onDelete();
     }
     // If viewing detail page, redirect to projects
-    router.push("/projects")
-  }
+    router.push("/projects");
+  };
 
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialogTrigger asChild>
-        <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
-          <Trash2 className="w-4 h-4 mr-2" />
+        <Button
+          variant="ghost"
+          size="sm"
+          className="w-full rounded-md justify-start gap-2 m-0 text-destructive hover:text-destructive hover:!bg-accent"
+        >
+          <Trash2 className="w-4 h-4 text-destructive" />
           Delete
         </Button>
       </AlertDialogTrigger>
@@ -51,7 +60,8 @@ export function DeleteProjectDialog({ projectId, projectName, onDelete }: Delete
         <AlertDialogHeader>
           <AlertDialogTitle>Delete Project</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete <strong>{projectName}</strong>? This action cannot be undone.
+            Are you sure you want to delete <strong>{projectName}</strong>? This
+            action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <div className="flex justify-end gap-3">
@@ -65,5 +75,5 @@ export function DeleteProjectDialog({ projectId, projectName, onDelete }: Delete
         </div>
       </AlertDialogContent>
     </AlertDialog>
-  )
+  );
 }

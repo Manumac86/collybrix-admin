@@ -1,0 +1,370 @@
+/**
+ * Mobile Optimizations for Project Management Module
+ * Responsive CSS for mobile and tablet devices
+ */
+
+/* ============================================================================
+   MOBILE BREAKPOINTS
+   ============================================================================ */
+
+/* Mobile: < 640px (sm) */
+/* Tablet: 640px - 1024px (md-lg) */
+/* Desktop: > 1024px (xl) */
+
+/* ============================================================================
+   KANBAN BOARD - MOBILE OPTIMIZATIONS
+   ============================================================================ */
+
+@media (max-width: 640px) {
+  /* Horizontal scroll with snap points */
+  .kanban-board-container {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+
+  .kanban-column {
+    scroll-snap-align: start;
+    min-width: 280px;
+    flex-shrink: 0;
+  }
+
+  /* Compact card view on mobile */
+  .kanban-task-card {
+    padding: 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .kanban-task-card-title {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+
+  .kanban-task-card-description {
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+
+  /* Hide less important metadata on mobile */
+  .kanban-task-card .task-metadata-secondary {
+    display: none;
+  }
+}
+
+/* ============================================================================
+   BACKLOG - MOBILE OPTIMIZATIONS
+   ============================================================================ */
+
+@media (max-width: 640px) {
+  /* Stack list items vertically with compact spacing */
+  .backlog-list-item {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0.75rem;
+    gap: 0.5rem;
+  }
+
+  /* Compact card view */
+  .backlog-card {
+    padding: 0.75rem;
+  }
+
+  /* Hide table view on mobile, show cards instead */
+  .backlog-table-view {
+    display: none;
+  }
+
+  .backlog-card-view {
+    display: block;
+  }
+
+  /* Make filters stack vertically */
+  .backlog-toolbar {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .backlog-toolbar > * {
+    width: 100%;
+  }
+}
+
+/* ============================================================================
+   METRICS - MOBILE OPTIMIZATIONS
+   ============================================================================ */
+
+@media (max-width: 640px) {
+  /* Stack charts vertically */
+  .metrics-charts-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Reduce chart height on mobile */
+  .metrics-chart {
+    height: 250px !important;
+  }
+
+  /* Compact stats cards */
+  .metrics-stat-card {
+    padding: 1rem;
+  }
+
+  .metrics-stat-value {
+    font-size: 1.5rem;
+  }
+
+  .metrics-stat-label {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  /* Stack charts vertically on tablets too */
+  .metrics-charts-grid.lg-2-cols {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ============================================================================
+   SPRINT PLANNING - MOBILE OPTIMIZATIONS
+   ============================================================================ */
+
+@media (max-width: 1024px) {
+  /* Stack sprint planning columns vertically */
+  .sprint-planning-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Make backlog and sprint lists full width */
+  .sprint-planning-column {
+    width: 100%;
+  }
+
+  /* Reduce drag-and-drop affordance on mobile */
+  .sprint-planning-task-card {
+    cursor: pointer;
+  }
+}
+
+/* ============================================================================
+   TOUCH TARGETS - MOBILE OPTIMIZATIONS
+   ============================================================================ */
+
+@media (max-width: 640px) {
+  /* Ensure all interactive elements meet 44px minimum */
+  button,
+  a,
+  .interactive,
+  .clickable {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Increase tap target for small icons */
+  .icon-button {
+    padding: 0.75rem;
+  }
+
+  /* Increase spacing for better touch accuracy */
+  .button-group {
+    gap: 0.75rem;
+  }
+}
+
+/* ============================================================================
+   DIALOGS - MOBILE OPTIMIZATIONS
+   ============================================================================ */
+
+@media (max-width: 640px) {
+  /* Make dialogs full-screen on mobile */
+  .dialog-overlay {
+    padding: 0;
+  }
+
+  .dialog-content {
+    max-width: 100vw !important;
+    max-height: 100vh !important;
+    height: 100vh;
+    border-radius: 0;
+    margin: 0;
+  }
+
+  /* Make form fields stack vertically */
+  .form-row {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .form-row > * {
+    width: 100%;
+  }
+}
+
+/* ============================================================================
+   NAVIGATION - MOBILE OPTIMIZATIONS
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  /* Hide desktop tabs, show dropdown */
+  .pm-tabs-desktop {
+    display: none;
+  }
+
+  .pm-tabs-mobile {
+    display: block;
+  }
+
+  /* Compact breadcrumbs */
+  .breadcrumbs {
+    font-size: 0.75rem;
+  }
+
+  .breadcrumb-separator {
+    margin: 0 0.25rem;
+  }
+
+  /* Reduce header padding */
+  .pm-header {
+    padding: 1rem;
+  }
+}
+
+@media (min-width: 769px) {
+  .pm-tabs-desktop {
+    display: block;
+  }
+
+  .pm-tabs-mobile {
+    display: none;
+  }
+}
+
+/* ============================================================================
+   TABLES - MOBILE OPTIMIZATIONS
+   ============================================================================ */
+
+@media (max-width: 640px) {
+  /* Hide table, show card view */
+  table.hide-on-mobile {
+    display: none;
+  }
+
+  /* Responsive table - scroll horizontally */
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table {
+    min-width: 600px;
+  }
+
+  /* Reduce table cell padding */
+  td,
+  th {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* ============================================================================
+   LOADING STATES - MOBILE OPTIMIZATIONS
+   ============================================================================ */
+
+@media (max-width: 640px) {
+  .skeleton {
+    height: 1rem;
+  }
+
+  .skeleton-title {
+    height: 1.5rem;
+  }
+
+  .skeleton-card {
+    padding: 0.75rem;
+  }
+}
+
+/* ============================================================================
+   UTILITIES
+   ============================================================================ */
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Prevent text size adjust on iOS */
+@media (max-width: 640px) {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+}
+
+/* Safe area insets for iOS notch */
+@supports (padding: env(safe-area-inset-top)) {
+  .pm-header {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+
+  .pm-footer {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+}
+
+/* Custom scrollbar styles */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Dark mode scrollbar */
+@media (prefers-color-scheme: dark) {
+  .custom-scrollbar {
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+  }
+}
+
+/* Focus visible styles for keyboard navigation */
+.focus-visible:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

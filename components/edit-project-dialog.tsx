@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
+import type React from "react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -10,11 +10,18 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Pencil } from "lucide-react"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Pencil } from "lucide-react";
+import Link from "next/link";
 
 const pipelineStates = [
   "scouting",
@@ -30,35 +37,50 @@ const pipelineStates = [
   "to start",
   "in progress",
   "finished",
-]
+];
 
-const projectTypes = ["Accelleration", "Software Factory", "Consulting", "SaaS"]
-const paymentStatuses = ["paid", "partial", "pending"]
+const projectStatuses = [
+  "not_started",
+  "in_progress",
+  "active",
+  "finished",
+  "cancelled",
+  "on hold",
+  "closed",
+];
+
+const projectTypes = [
+  "Accelleration",
+  "Software Factory",
+  "Consulting",
+  "SaaS",
+];
+const paymentStatuses = ["paid", "partial", "pending"];
 
 interface Project {
-  _id: string
-  name: string
-  company: string
-  pipelineState: string
-  projectType: string
-  initialPricing: number
-  finalPrice: number | null
-  mmr: number | null
-  paymentStatus: string
-  status: string
-  startedDate: string
-  description: string
-  docsLink: string
+  _id: string;
+  name: string;
+  company: string;
+  pipelineState: string;
+  projectType: string;
+  initialPricing: number;
+  finalPrice: number | null;
+  mmr: number | null;
+  paymentStatus: string;
+  status: string;
+  startedDate: string;
+  description: string;
+  docsLink: string;
 }
 
 interface EditProjectDialogProps {
-  project: Project
-  onSave: () => void
+  project: Project;
+  onSave: () => void;
 }
 
 export function EditProjectDialog({ project, onSave }: EditProjectDialogProps) {
-  const [open, setOpen] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: project.name,
     company: project.company,
@@ -71,11 +93,11 @@ export function EditProjectDialog({ project, onSave }: EditProjectDialogProps) {
     status: project.status,
     description: project.description,
     docsLink: project.docsLink,
-  })
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
 
     try {
       const response = await fetch(`/api/projects/${project._id}`, {
@@ -87,31 +109,39 @@ export function EditProjectDialog({ project, onSave }: EditProjectDialogProps) {
           finalPrice: formData.finalPrice ? Number(formData.finalPrice) : null,
           mmr: formData.mmr ? Number(formData.mmr) : null,
         }),
-      })
+      });
 
       if (response.ok) {
-        setOpen(false)
-        onSave()
+        setOpen(false);
+        onSave();
       }
     } catch (error) {
-      console.error("Error updating project:", error)
+      console.error("Error updating project:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2 bg-transparent">
-          <Pencil className="w-4 h-4" />
-          Edit Project
-        </Button>
+        <Link href="#" className="w-full rounded-md !p-0">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full rounded-md justify-start gap-2 m-0 hover:!bg-accent"
+          >
+            <Pencil className="w-4 h-4" />
+            Edit Project
+          </Button>
+        </Link>
       </DialogTrigger>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Edit Project</DialogTitle>
-          <DialogDescription>Update project details and information</DialogDescription>
+          <DialogDescription>
+            Update project details and information
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
@@ -120,7 +150,9 @@ export function EditProjectDialog({ project, onSave }: EditProjectDialogProps) {
               <Input
                 id="name"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
                 required
               />
             </div>
@@ -130,16 +162,40 @@ export function EditProjectDialog({ project, onSave }: EditProjectDialogProps) {
               <Input
                 id="company"
                 value={formData.company}
-                onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, company: e.target.value })
+                }
                 required
               />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="pipeline">Project Status</Label>
+              <Select
+                value={formData.status}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, status: value })
+                }
+              >
+                <SelectTrigger id="pipeline">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {projectStatuses.map((status) => (
+                    <SelectItem key={status} value={status}>
+                      {status}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="pipeline">Pipeline State *</Label>
               <Select
                 value={formData.pipelineState}
-                onValueChange={(value) => setFormData({ ...formData, pipelineState: value })}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, pipelineState: value })
+                }
               >
                 <SelectTrigger id="pipeline">
                   <SelectValue />
@@ -158,7 +214,9 @@ export function EditProjectDialog({ project, onSave }: EditProjectDialogProps) {
               <Label htmlFor="type">Project Type *</Label>
               <Select
                 value={formData.projectType}
-                onValueChange={(value) => setFormData({ ...formData, projectType: value })}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, projectType: value })
+                }
               >
                 <SelectTrigger id="type">
                   <SelectValue />
@@ -179,7 +237,9 @@ export function EditProjectDialog({ project, onSave }: EditProjectDialogProps) {
                 id="initialPrice"
                 type="number"
                 value={formData.initialPricing}
-                onChange={(e) => setFormData({ ...formData, initialPricing: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, initialPricing: e.target.value })
+                }
                 required
               />
             </div>
@@ -190,7 +250,9 @@ export function EditProjectDialog({ project, onSave }: EditProjectDialogProps) {
                 id="finalPrice"
                 type="number"
                 value={formData.finalPrice}
-                onChange={(e) => setFormData({ ...formData, finalPrice: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, finalPrice: e.target.value })
+                }
               />
             </div>
 
@@ -200,7 +262,9 @@ export function EditProjectDialog({ project, onSave }: EditProjectDialogProps) {
                 id="mmr"
                 type="number"
                 value={formData.mmr}
-                onChange={(e) => setFormData({ ...formData, mmr: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, mmr: e.target.value })
+                }
               />
             </div>
 
@@ -208,7 +272,9 @@ export function EditProjectDialog({ project, onSave }: EditProjectDialogProps) {
               <Label htmlFor="payment">Payment Status *</Label>
               <Select
                 value={formData.paymentStatus}
-                onValueChange={(value) => setFormData({ ...formData, paymentStatus: value })}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, paymentStatus: value })
+                }
               >
                 <SelectTrigger id="payment">
                   <SelectValue />
@@ -231,7 +297,9 @@ export function EditProjectDialog({ project, onSave }: EditProjectDialogProps) {
               className="w-full px-3 py-2 border border-input rounded-md text-sm"
               rows={3}
               value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
             />
           </div>
 
@@ -241,12 +309,19 @@ export function EditProjectDialog({ project, onSave }: EditProjectDialogProps) {
               id="docsLink"
               type="url"
               value={formData.docsLink}
-              onChange={(e) => setFormData({ ...formData, docsLink: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, docsLink: e.target.value })
+              }
             />
           </div>
 
           <div className="flex justify-end gap-3 pt-4">
-            <Button variant="outline" onClick={() => setOpen(false)} type="button" disabled={loading}>
+            <Button
+              variant="outline"
+              onClick={() => setOpen(false)}
+              type="button"
+              disabled={loading}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>
@@ -256,5 +331,5 @@ export function EditProjectDialog({ project, onSave }: EditProjectDialogProps) {
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

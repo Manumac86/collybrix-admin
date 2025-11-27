@@ -16,6 +16,7 @@ dist/
 
 # Production
 build/
+docs/ 
 
 # Misc
 .DS_Store
@@ -62,3 +63,6 @@ Thumbs.db
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# clerk configuration (can include secrets)
+/.clerk/

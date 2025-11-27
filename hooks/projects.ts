@@ -69,12 +69,7 @@ export function useProject(id: string | number) {
 export function useRevenue() {
   const { data, error, isLoading } = useSWR("/api/projects/revenue", fetcher);
   return {
-    monthlyRevenueData: data?.monthlyRevenueData?.map(
-      (item: { month: string; revenue: number }) => ({
-        month: item.month,
-        revenue: item.revenue,
-      })
-    ),
+    monthlyRevenueData: data?.monthlyRevenueData ?? [],
     totalRevenue: data?.totalRevenue,
     isLoading,
     error: error?.message,

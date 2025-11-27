@@ -1,26 +1,29 @@
 import Link from "next/link";
 import Image from "next/image";
+import { cn } from "@/lib/utils";
 
-export const Logo = () => {
+export const Logo = ({
+  className,
+  size = 64,
+}: {
+  className?: string;
+  size?: number;
+}) => {
   return (
-    <Link href="/" className="flex items-center gap-0">
-      <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-transparent">
+    <Link href="/" className={cn("flex items-center gap-0", className)}>
+      <div
+        className={cn(
+          "flex items-center justify-center rounded-lg bg-transparent",
+          className
+        )}
+      >
         <Image
           src="/logo.png"
           alt="Collybrix"
-          width={64}
-          height={64}
-          // style={{ display: "var(--display-light)" }}
+          width={size}
+          height={size}
           className="object-contain bg-transparent"
         />
-        {/* <Image
-            src="/logo-dark.png"
-            alt="Collybrix"
-            width={64}
-            height={64}
-            style={{ display: "var(--display-dark)" }}
-            className="object-contain bg-transparent"
-          /> */}
       </div>
     </Link>
   );

@@ -10,25 +10,9 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "./ui/chart";
 import { useRevenue } from "@/hooks/projects";
 
 export function RevenueChart() {
-  const { monthlyRevenueData, isLoading, error } = useRevenue();
-
+  const { monthlyRevenueData: data, isLoading, error } = useRevenue();
+  // console.log(monthlyRevenueData);
   // We want to return an array like monthlyRevenueData, but 'revenue' becomes cumulative sum.
-  const data = Array.isArray(monthlyRevenueData)
-    ? monthlyRevenueData.reduce(
-        (
-          acc: { month: string; revenue: number }[],
-          curr: { month: string; revenue: number }
-        ) => {
-          const prevRevenue = acc.length > 0 ? acc[acc.length - 1].revenue : 0;
-          acc.push({
-            ...curr,
-            revenue: prevRevenue + curr.revenue,
-          });
-          return acc;
-        },
-        []
-      )
-    : [];
 
   if (isLoading) {
     return <div>Loading...</div>;
