@@ -110,8 +110,7 @@ function KanbanColumnComponent({
       {!isCollapsed && (
         <div
           ref={setNodeRef}
-          className="flex-1 overflow-y-auto p-3 space-y-3 min-h-[200px]"
-          style={{ maxHeight: "calc(100vh - 250px)" }}
+          className="flex-1 overflow-y-auto p-3 space-y-3 min-h-[200px] pb-32"
         >
           <SortableContext
             items={taskIds}

@@ -96,263 +96,255 @@ export default function ProjectDetailPage() {
 
   if (isLoading) {
     return (
-      <LayoutWrapper>
-        <div className="p-8 text-center text-muted-foreground">
-          Loading project...
-        </div>
-      </LayoutWrapper>
+      <div className="p-8 text-center text-muted-foreground">
+        Loading project...
+      </div>
     );
   }
 
   if (!currentProject) {
     return (
-      <LayoutWrapper>
-        <div className="p-8 mb-6">
-          <Link href="/projects">
-            <Button variant="outline" size="sm" className="mb-4 bg-transparent">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Projects
-            </Button>
-          </Link>
-          <div className="text-center text-muted-foreground">
-            Project not found
-          </div>
-        </div>
-      </LayoutWrapper>
-    );
-  }
-
-  return (
-    <LayoutWrapper>
-      <div className="p-8 space-y-6">
-        {/* Back Button */}
+      <div className="p-8 mb-6">
         <Link href="/projects">
-          <Button variant="outline" size="sm" className="mb-6 bg-transparent">
+          <Button variant="outline" size="sm" className="mb-4 bg-transparent">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Projects
           </Button>
         </Link>
+        <div className="text-center text-muted-foreground">
+          Project not found
+        </div>
+      </div>
+    );
+  }
 
-        {/* Project Header with Edit and Delete Buttons */}
-        <div className="flex items-start justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">
-              {currentProject.name}
-            </h1>
-            <p className="text-muted-foreground mt-2">
-              {currentProject.company}
-            </p>
-            <Link
-              href={currentProject.docsLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium"
+  return (
+    <div className="p-8 space-y-6">
+      {/* Back Button */}
+      <Link href="/projects">
+        <Button variant="outline" size="sm" className="mb-6 bg-transparent">
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Projects
+        </Button>
+      </Link>
+
+      {/* Project Header with Edit and Delete Buttons */}
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">
+            {currentProject.name}
+          </h1>
+          <p className="text-muted-foreground mt-2">{currentProject.company}</p>
+          <Link
+            href={currentProject.docsLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium"
+          >
+            View Project Docs
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              View Project Docs
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                />
-              </svg>
-            </Link>
-          </div>
-          {/* Edit and Delete Buttons */}
-          <div className="flex gap-2">
-            <EditProjectDialog
-              project={currentProject}
-              onSave={handleSaveProject}
-            />
-            <DeleteProjectDialog
-              projectId={currentProject._id}
-              projectName={currentProject.name}
-              onDelete={handleDeleteProject}
-            />
-          </div>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+              />
+            </svg>
+          </Link>
         </div>
-
-        {/* Main Info Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold text-muted-foreground">
-                Pipeline State
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Badge
-                className={`${
-                  pipelineColors[currentProject.pipelineState] ||
-                  "bg-gray-100 text-gray-800"
-                }`}
-              >
-                {currentProject.pipelineState}
-              </Badge>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold text-muted-foreground">
-                Project Type
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Badge
-                className={
-                  projectTypeColors[currentProject.projectType] ||
-                  "bg-gray-100 text-gray-800"
-                }
-              >
-                {currentProject.projectType}
-              </Badge>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold text-muted-foreground">
-                Status
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Badge className="bg-blue-100 text-blue-800">
-                {currentProject.status}
-              </Badge>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold text-muted-foreground">
-                Payment Status
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Badge
-                className={
-                  paymentStatusColors[currentProject.paymentStatus] ||
-                  "bg-gray-100 text-gray-800"
-                }
-              >
-                {currentProject.paymentStatus}
-              </Badge>
-            </CardContent>
-          </Card>
+        {/* Edit and Delete Buttons */}
+        <div className="flex gap-2">
+          <EditProjectDialog
+            project={currentProject}
+            onSave={handleSaveProject}
+          />
+          <DeleteProjectDialog
+            projectId={currentProject._id}
+            projectName={currentProject.name}
+            onDelete={handleDeleteProject}
+          />
         </div>
+      </div>
 
-        {/* Pricing & Financial Info */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Initial Pricing</CardTitle>
-              <CardDescription>Project quote</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-foreground">
-                €{currentProject.initialPricing.toLocaleString()}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Final Price</CardTitle>
-              <CardDescription>Agreed upon price</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-foreground">
-                {currentProject.finalPrice
-                  ? `€${currentProject.finalPrice.toLocaleString()}`
-                  : "Not set"}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Monthly Recurring Revenue</CardTitle>
-              <CardDescription>MMR</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-foreground">
-                €{(currentProject.mmr || 0).toLocaleString()}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Project Timeline */}
-        <ProjectTimeline
-          milestones={projectMilestones}
-          onAddMilestone={handleAddMilestone}
-        />
-
-        {/* Description Section */}
+      {/* Main Info Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
-          <CardHeader>
-            <CardTitle>Description</CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-semibold text-muted-foreground">
+              Pipeline State
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground leading-relaxed">
-              {currentProject.description}
-            </p>
+            <Badge
+              className={`${
+                pipelineColors[currentProject.pipelineState] ||
+                "bg-gray-100 text-gray-800"
+              }`}
+            >
+              {currentProject.pipelineState}
+            </Badge>
           </CardContent>
         </Card>
 
-        {/* Contacts */}
-        {projectContacts.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Project Contacts</CardTitle>
-              <CardDescription>
-                {projectContacts.length} contact(s) associated with this project
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {projectContacts.map((contact) => (
-                  <div
-                    key={contact.id}
-                    className="flex items-start justify-between border-b border-border pb-4 last:border-0"
-                  >
-                    <div className="flex-1">
-                      <div className="font-semibold text-foreground">
-                        {contact.name}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {contact.position}
-                      </div>
-                      <div className="text-xs text-muted-foreground mt-1">
-                        {contact.company}
-                      </div>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-semibold text-muted-foreground">
+              Project Type
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Badge
+              className={
+                projectTypeColors[currentProject.projectType] ||
+                "bg-gray-100 text-gray-800"
+              }
+            >
+              {currentProject.projectType}
+            </Badge>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-semibold text-muted-foreground">
+              Status
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Badge className="bg-blue-100 text-blue-800">
+              {currentProject.status}
+            </Badge>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-semibold text-muted-foreground">
+              Payment Status
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Badge
+              className={
+                paymentStatusColors[currentProject.paymentStatus] ||
+                "bg-gray-100 text-gray-800"
+              }
+            >
+              {currentProject.paymentStatus}
+            </Badge>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Pricing & Financial Info */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Initial Pricing</CardTitle>
+            <CardDescription>Project quote</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-foreground">
+              €{currentProject.initialPricing.toLocaleString()}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Final Price</CardTitle>
+            <CardDescription>Agreed upon price</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-foreground">
+              {currentProject.finalPrice
+                ? `€${currentProject.finalPrice.toLocaleString()}`
+                : "Not set"}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Monthly Recurring Revenue</CardTitle>
+            <CardDescription>MMR</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-foreground">
+              €{(currentProject.mmr || 0).toLocaleString()}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Project Timeline */}
+      <ProjectTimeline
+        milestones={projectMilestones}
+        onAddMilestone={handleAddMilestone}
+      />
+
+      {/* Description Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Description</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground leading-relaxed">
+            {currentProject.description}
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* Contacts */}
+      {projectContacts.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Project Contacts</CardTitle>
+            <CardDescription>
+              {projectContacts.length} contact(s) associated with this project
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {projectContacts.map((contact) => (
+                <div
+                  key={contact.id}
+                  className="flex items-start justify-between border-b border-border pb-4 last:border-0"
+                >
+                  <div className="flex-1">
+                    <div className="font-semibold text-foreground">
+                      {contact.name}
                     </div>
-                    <div className="flex gap-2">
-                      <a href={`mailto:${contact.email}`}>
-                        <Button variant="outline" size="sm">
-                          <Mail className="w-4 h-4" />
-                        </Button>
-                      </a>
-                      <a href={`tel:${contact.phoneNumber}`}>
-                        <Button variant="outline" size="sm">
-                          <Phone className="w-4 h-4" />
-                        </Button>
-                      </a>
+                    <div className="text-sm text-muted-foreground">
+                      {contact.position}
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {contact.company}
                     </div>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-      </div>
-    </LayoutWrapper>
+                  <div className="flex gap-2">
+                    <a href={`mailto:${contact.email}`}>
+                      <Button variant="outline" size="sm">
+                        <Mail className="w-4 h-4" />
+                      </Button>
+                    </a>
+                    <a href={`tel:${contact.phoneNumber}`}>
+                      <Button variant="outline" size="sm">
+                        <Phone className="w-4 h-4" />
+                      </Button>
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
   );
 }

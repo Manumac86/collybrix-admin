@@ -4,7 +4,13 @@ import { use } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import { Loader2, ArrowLeft, Edit, Trash2, AlertCircle } from "lucide-react";
-import { useTask, useUpdateTask, useDeleteTask, useTasks, useUsers } from "@/hooks/pm";
+import {
+  useTask,
+  useUpdateTask,
+  useDeleteTask,
+  useTasks,
+  useUsers,
+} from "@/hooks/pm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -105,7 +111,11 @@ export default function TaskDetailPage({ params }: TaskDetailPageProps) {
           <p className="text-muted-foreground mb-4">
             {error || "The task you are looking for does not exist."}
           </p>
-          <Button onClick={() => router.push(`/project-management/${projectId}/backlog`)}>
+          <Button
+            onClick={() =>
+              router.push(`/project-management/${projectId}/backlog`)
+            }
+          >
             Back to Backlog
           </Button>
         </Card>
@@ -113,21 +123,28 @@ export default function TaskDetailPage({ params }: TaskDetailPageProps) {
     );
   }
 
-  const assignee = users.find((u) => u._id.toString() === task.assigneeId?.toString());
-  const reporter = users.find((u) => u._id.toString() === task.reporterId?.toString());
-  const childrenTasks = task.type === "epic" || task.type === "story"
-    ? allTasks.filter((t) => t.parentId?.toString() === task._id.toString())
-    : [];
+  const assignee = users.find(
+    (u) => u._id.toString() === task.assigneeId?.toString()
+  );
+  const reporter = users.find(
+    (u) => u._id.toString() === task.reporterId?.toString()
+  );
+  const childrenTasks =
+    task.type === "epic" || task.type === "story"
+      ? allTasks.filter((t) => t.parentId?.toString() === task._id.toString())
+      : [];
 
   return (
-    <div className="p-6 space-y-6 max-w-5xl mx-auto">
+    <div className="space-y-6 py-6 max-w-5xl mx-auto">
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => router.push(`/project-management/${projectId}/backlog`)}
+            onClick={() =>
+              router.push(`/project-management/${projectId}/backlog`)
+            }
             className="mb-4"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -151,7 +168,11 @@ export default function TaskDetailPage({ params }: TaskDetailPageProps) {
         </div>
 
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => setIsEditDialogOpen(true)}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsEditDialogOpen(true)}
+          >
             <Edit className="h-4 w-4 mr-2" />
             Edit
           </Button>
@@ -179,7 +200,9 @@ export default function TaskDetailPage({ params }: TaskDetailPageProps) {
             <CardContent>
               <div className="prose prose-sm max-w-none">
                 {task.description || (
-                  <p className="text-muted-foreground italic">No description provided</p>
+                  <p className="text-muted-foreground italic">
+                    No description provided
+                  </p>
                 )}
               </div>
             </CardContent>
@@ -197,15 +220,25 @@ export default function TaskDetailPage({ params }: TaskDetailPageProps) {
                     <div
                       key={childTask._id.toString()}
                       className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
-                      onClick={() => router.push(`/project-management/${projectId}/tasks/${childTask._id.toString()}`)}
+                      onClick={() =>
+                        router.push(
+                          `/project-management/${projectId}/tasks/${childTask._id.toString()}`
+                        )
+                      }
                     >
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <Badge variant="outline" className={cn("text-xs", getTypeColor(childTask.type))}>
+                          <Badge
+                            variant="outline"
+                            className={cn(
+                              "text-xs",
+                              getTypeColor(childTask.type)
+                            )}
+                          >
                             {childTask.type}
                           </Badge>
-                          <StatusBadge status={childTask.status} size="sm" />
-                          <PriorityBadge priority={childTask.priority} size="sm" />
+                          <StatusBadge status={childTask.status} />
+                          <PriorityBadge priority={childTask.priority} />
                         </div>
                         <p className="text-sm font-medium">{childTask.title}</p>
                       </div>
@@ -277,7 +310,9 @@ export default function TaskDetailPage({ params }: TaskDetailPageProps) {
                 </h4>
                 <div className="flex items-center gap-2">
                   <UserAvatar user={assignee || null} size="sm" />
-                  <span className="text-sm">{assignee?.name || "Unassigned"}</span>
+                  <span className="text-sm">
+                    {assignee?.name || "Unassigned"}
+                  </span>
                 </div>
               </div>
 
@@ -325,7 +360,9 @@ export default function TaskDetailPage({ params }: TaskDetailPageProps) {
                     <h4 className="text-xs font-medium text-muted-foreground mb-1">
                       Estimated Hours
                     </h4>
-                    <p className="text-sm font-medium">{task.estimatedHours}h</p>
+                    <p className="text-sm font-medium">
+                      {task.estimatedHours}h
+                    </p>
                   </div>
                   <Separator />
                 </>

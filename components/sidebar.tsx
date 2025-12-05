@@ -10,16 +10,27 @@ import {
   Moon,
   Sun,
   Calculator,
-  Receipt,
   Sparkles,
   Kanban,
 } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
-import { cn } from "@/lib/utils";
 import { useTheme } from "./theme-provider";
 import { Logo } from "./logo";
+import { Button } from "./ui/button";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
+import { Separator } from "@/components/ui/separator";
 
-export function Sidebar() {
+export function AppSidebar() {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -66,85 +77,99 @@ export function Sidebar() {
   }, []);
 
   return (
-    <aside className="w-64 border-r border-border bg-sidebar text-sidebar-foreground h-screen sticky top-0 flex flex-col">
+    <Sidebar variant="floating">
       {/* Header with Logo */}
-      <div className="p-6 border-b border-sidebar-border">
-        <div className="flex items-center">
-          <Logo />
-          <h1 className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
-            Collybrix Admin
-          </h1>
+      <SidebarHeader className="border-b border-sidebar-border p-6">
+        <div className="flex items-center gap-2">
+          <Logo size={48} />
+          <h4 className="font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
+            Collybrix Tools
+          </h4>
         </div>
-      </div>
+      </SidebarHeader>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-2">
-        {routes.map((route) => {
-          const Icon = route.icon;
-          const isActive =
-            pathname === route.href || pathname?.startsWith(route.href + "/");
-          return (
-            <Link
-              key={route.href}
-              href={route.href}
-              className={cn(
-                "flex items-center gap-3 px-4 py-2 rounded-lg transition-colors",
-                isActive
-                  ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                  : "hover:bg-sidebar-accent text-sidebar-foreground"
-              )}
-            >
-              <Icon className="w-5 h-5" />
-              <span className="font-medium">{route.label}</span>
-            </Link>
-          );
-        })}
-      </nav>
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {routes.map((route) => {
+                const Icon = route.icon;
+                const isActive =
+                  pathname === route.href ||
+                  pathname?.startsWith(route.href + "/");
+                return (
+                  <SidebarMenuItem key={route.href}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
+                      className="data-[active=true]:bg-primary/40 data-[active=true]:text-foreground hover:bg-primary/10"
+                    >
+                      <Link href={route.href}>
+                        <Icon className="w-5 h-5" />
+                        <span>{route.label}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
 
       {/* Footer with User Profile and Theme Toggle */}
-      <div className="p-4 border-t border-sidebar-border space-y-3">
-        {/* User Profile */}
-        <div className="flex items-center gap-3 px-4 py-2">
-          <UserButton
-            afterSignOutUrl="/"
-            appearance={{
-              elements: {
-                avatarBox: "w-10 h-10"
-              }
-            }}
-          />
-          <span className="text-sm font-medium text-sidebar-foreground">My Account</span>
-        </div>
+      <SidebarFooter className="p-4 border-t border-sidebar-border">
+        <div className="space-y-2">
+          {/* User Profile */}
+          <div className="flex items-center gap-3 px-2 py-2">
+            <UserButton
+              appearance={{
+                elements: {
+                  avatarBox: "w-10 h-10",
+                },
+              }}
+            />
+            <span className="text-sm font-medium text-sidebar-foreground">
+              My Account
+            </span>
+          </div>
 
-        {/* Theme Toggle */}
-        <button
-          onClick={toggleTheme}
-          className={cn(
-            "w-full flex items-center gap-3 px-4 py-2 rounded-lg transition-colors",
-            "hover:bg-sidebar-accent text-sidebar-foreground"
-          )}
-          aria-label="Toggle theme"
-        >
-          {!mounted ? (
-            // Render a neutral placeholder during SSR to avoid hydration mismatch
-            <>
-              <div className="w-5 h-5" />
-              <span className="font-medium text-sm">Theme</span>
-            </>
-          ) : theme === "light" ? (
-            <>
-              <Moon className="w-5 h-5" />
-              <span className="font-medium text-sm">Dark Mode</span>
-            </>
-          ) : (
-            <>
-              <Sun className="w-5 h-5" />
-              <span className="font-medium text-sm">Light Mode</span>
-            </>
-          )}
-        </button>
-        <p className="text-xs text-sidebar-foreground/60">© 2025 Collybrix</p>
-      </div>
-    </aside>
+          <Separator className="bg-sidebar-border" />
+
+          {/* Theme Toggle */}
+          <Button
+            variant="ghost"
+            onClick={toggleTheme}
+            className="w-full justify-start gap-3"
+            aria-label="Toggle theme"
+          >
+            {!mounted ? (
+              // Render a neutral placeholder during SSR to avoid hydration mismatch
+              <>
+                <div className="w-5 h-5" />
+                <span className="text-sm">Theme</span>
+              </>
+            ) : theme === "light" ? (
+              <>
+                <Moon className="w-5 h-5" />
+                <span className="text-sm">Dark Mode</span>
+              </>
+            ) : (
+              <>
+                <Sun className="w-5 h-5" />
+                <span className="text-sm">Light Mode</span>
+              </>
+            )}
+          </Button>
+
+          <Separator className="bg-sidebar-border" />
+
+          <p className="text-xs text-sidebar-foreground/60 text-center pt-1">
+            © 2025 Collybrix
+          </p>
+        </div>
+      </SidebarFooter>
+    </Sidebar>
   );
 }

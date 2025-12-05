@@ -9,5 +9,5 @@ export default function ProjectManagementLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <LayoutWrapper>{children}</LayoutWrapper>;
+  return children;
 }

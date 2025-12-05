@@ -132,17 +132,17 @@ export default function PMLayout({ children, params }: PMLayoutProps) {
       onNewTask={handleNewTask}
       onSearch={handleSearchFocus}
     >
-      <div className="flex-1 flex flex-col h-full overflow-hidden">
+      <div className="flex-1 flex flex-col h-full overflow-hidden bg-background">
         {/* Header with Breadcrumbs and Project Info */}
-        <div className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950">
-          <div className="px-6 py-4 space-y-3">
+        <div className="border-b border-border bg-background">
+          <div className="py-4 space-y-3">
             {/* Breadcrumbs */}
             <Breadcrumbs projectName={project?.name} projectId={projectId} />
 
             {/* Project Title */}
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                <h1 className="text-2xl font-bold text-foreground">
                   {isLoading ? "Loading..." : project?.name || "Project"}
                 </h1>
                 {project?.company && (
@@ -161,7 +161,7 @@ export default function PMLayout({ children, params }: PMLayoutProps) {
           </div>
 
           {/* Tab Navigation - Desktop */}
-          <div className="hidden md:block px-6">
+          <div className="hidden md:block">
             <Tabs value={activeTab} className="w-full">
               <TabsList className="w-full justify-start h-12 bg-transparent border-b-0 p-0 rounded-none">
                 {tabs.map((tab) => {
@@ -177,7 +177,7 @@ export default function PMLayout({ children, params }: PMLayoutProps) {
                       <TabsTrigger
                         value={tab.value}
                         className={cn(
-                          "h-12 rounded-none border-b-2 border-transparent px-4 gap-2",
+                          "h-12 rounded-none border-b-2 border-transparent gap-2",
                           "data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:border-b-transparent rounded-t-lg",
                           "hover:bg-gray-50 dark:hover:bg-gray-900"
                         )}

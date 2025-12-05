@@ -137,7 +137,7 @@ export function TaskDetailPanel({
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            <div className="flex-1 overflow-y-auto py-6 space-y-6">
               {/* Description */}
               <div>
                 <h3 className="text-sm font-semibold text-foreground mb-2">

@@ -47,7 +47,6 @@ export default function BacklogPage({ params }: BacklogPageProps) {
   const [sortBy, setSortBy] = useState("createdAt-desc");
   const [viewMode, setViewMode] = useState<"list" | "card">("list");
   const [selectedTasks, setSelectedTasks] = useState<Set<string>>(new Set());
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
@@ -232,7 +231,7 @@ export default function BacklogPage({ params }: BacklogPageProps) {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6 py-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Backlog</h1>
@@ -240,10 +239,6 @@ export default function BacklogPage({ params }: BacklogPageProps) {
             Manage tasks for {project.name}
           </p>
         </div>
-        <Button onClick={() => setCreateDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          New Task
-        </Button>
       </div>
 
       <BacklogToolbar
@@ -290,18 +285,6 @@ export default function BacklogPage({ params }: BacklogPageProps) {
           isLoading={isLoading}
         />
       </div>
-
-      {/* Create Task Dialog */}
-      <TaskDialog
-        open={createDialogOpen}
-        onOpenChange={setCreateDialogOpen}
-        onSubmit={handleCreateTask}
-        projectId={projectId}
-        currentUserId={userId || ""}
-        users={users}
-        availableTasks={tasks}
-        mode="create"
-      />
 
       {/* Edit Task Dialog */}
       {selectedTask && (

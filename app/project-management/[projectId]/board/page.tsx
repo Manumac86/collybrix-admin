@@ -213,7 +213,7 @@ export default function BoardPage() {
   return (
     <div className="flex h-full flex-col gap-4">
       {/* Filters - with padding */}
-      <div className="px-6 pt-6 space-y-4">
+      <div className="pt-6 space-y-4">
         <BoardFilters
           filters={filters}
           onFiltersChange={setFilters}
@@ -223,7 +223,7 @@ export default function BoardPage() {
         />
 
         {/* Task Count */}
-        <div className="text-sm text-gray-600">
+        <div className="text-sm text-muted-foreground">
           Showing {filteredTasks.length} of {tasks.length} tasks
         </div>
       </div>

@@ -2,7 +2,13 @@
 
 import { use, useState } from "react";
 import { Plus, Loader2 } from "lucide-react";
-import { useSprints, useCreateSprint, useUpdateSprint, useDeleteSprint, usePatchSprint } from "@/hooks/pm";
+import {
+  useSprints,
+  useCreateSprint,
+  useUpdateSprint,
+  useDeleteSprint,
+  usePatchSprint,
+} from "@/hooks/pm";
 import { Sprint, SprintFormData, SprintStatus } from "@/types/pm";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -29,17 +35,27 @@ interface SprintsPageProps {
  */
 export default function SprintsPage({ params }: SprintsPageProps) {
   const { projectId } = use(params);
-  const [activeTab, setActiveTab] = useState<"active" | "planning" | "completed" | "all">("active");
+  const [activeTab, setActiveTab] = useState<
+    "active" | "planning" | "completed" | "all"
+  >("active");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSprint, setEditingSprint] = useState<Sprint | undefined>();
 
   // Fetch sprints based on active tab
   const statusFilter: SprintStatus | SprintStatus[] | undefined =
-    activeTab === "all" ? undefined : activeTab === "active" ? "active" : activeTab === "planning" ? "planning" : "completed";
+    activeTab === "all"
+      ? undefined
+      : activeTab === "active"
+      ? "active"
+      : activeTab === "planning"
+      ? "planning"
+      : "completed";
 
   const { sprints, isLoading, mutate } = useSprints(projectId, statusFilter);
   const { trigger: createSprint, isMutating: isCreating } = useCreateSprint();
-  const { trigger: updateSprint, isMutating: isUpdating } = useUpdateSprint(editingSprint?._id.toString() || null);
+  const { trigger: updateSprint, isMutating: isUpdating } = useUpdateSprint(
+    editingSprint?._id.toString() || null
+  );
   const { trigger: patchSprint } = usePatchSprint(null);
   const { trigger: deleteSprint } = useDeleteSprint(null);
 
@@ -50,7 +66,9 @@ export default function SprintsPage({ params }: SprintsPageProps) {
       setIsDialogOpen(false);
       mutate();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to create sprint");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to create sprint"
+      );
     }
   };
 
@@ -63,7 +81,9 @@ export default function SprintsPage({ params }: SprintsPageProps) {
       setEditingSprint(undefined);
       mutate();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to update sprint");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to update sprint"
+      );
     }
   };
 
@@ -89,7 +109,9 @@ export default function SprintsPage({ params }: SprintsPageProps) {
         }),
       });
 
-      toast.success(`${sprint.name} started with ${committedPoints} committed points`);
+      toast.success(
+        `${sprint.name} started with ${committedPoints} committed points`
+      );
       mutate();
     } catch (error) {
       toast.error("Failed to start sprint");
@@ -139,7 +161,7 @@ export default function SprintsPage({ params }: SprintsPageProps) {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6 py-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -153,7 +175,10 @@ export default function SprintsPage({ params }: SprintsPageProps) {
       </div>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as typeof activeTab)}>
+      <Tabs
+        value={activeTab}
+        onValueChange={(value) => setActiveTab(value as typeof activeTab)}
+      >
         <TabsList>
           <TabsTrigger value="active">Active</TabsTrigger>
           <TabsTrigger value="planning">Planning</TabsTrigger>

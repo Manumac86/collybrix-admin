@@ -4,7 +4,13 @@ import { useState } from "react";
 import { use } from "react";
 import { Tag, Users, Settings2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { UserManagementTable } from "@/components/pm/settings/user-management-table";
 import { TagManagerDialog } from "@/components/pm/shared/tag-manager-dialog";
 import { Button } from "@/components/ui/button";
@@ -24,7 +30,7 @@ export default function SettingsPage({ params }: SettingsPageProps) {
   const { tags, isLoading: tagsLoading } = useTags(projectId);
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6 py-6">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold mb-2">Project Settings</h1>
@@ -138,7 +144,8 @@ export default function SettingsPage({ params }: SettingsPageProps) {
                 <Settings2 className="h-12 w-12 mx-auto mb-3 opacity-50" />
                 <p className="text-lg font-medium mb-1">Coming Soon</p>
                 <p className="text-sm">
-                  Board customization features will be available in a future update
+                  Board customization features will be available in a future
+                  update
                 </p>
               </div>
             </CardContent>

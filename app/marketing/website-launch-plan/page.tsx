@@ -416,510 +416,501 @@ export default function WebsiteLaunchPlanPage() {
   };
 
   return (
-    <LayoutWrapper>
-      <div className="min-h-screen p-6">
-        <div className="mx-auto max-w-7xl">
-          <Card className="overflow-hidden shadow-2xl ">
-            <div className="px-10 py-12 text-center">
-              <h1 className="mb-3 text-4xl font-bold">
-                🚀 Collybrix Website Launch Plan
-              </h1>
-              <p className="mb-4 text-xl opacity-90">
-                Your Temporary Technical Co-Founders
-              </p>
-              <div className="inline-block rounded-full bg-background px-6 py-3 text-lg font-semibold backdrop-blur-sm">
-                Launch Date: Monday, December 2, 2024
-              </div>
+    <div className="min-h-screen p-6">
+      <div className="mx-auto max-w-7xl">
+        <Card className="overflow-hidden shadow-2xl ">
+          <div className="px-10 py-12 text-center">
+            <h1 className="mb-3 text-4xl font-bold">
+              🚀 Collybrix Website Launch Plan
+            </h1>
+            <p className="mb-4 text-xl opacity-90">
+              Your Temporary Technical Co-Founders
+            </p>
+            <div className="inline-block rounded-full bg-background px-6 py-3 text-lg font-semibold backdrop-blur-sm">
+              Launch Date: Monday, December 2, 2024
+            </div>
+          </div>
+
+          <Tabs defaultValue="prelaunch" className="p-0">
+            <div className="border-b">
+              <TabsList className="mx-6 mt-6 w-auto bg-background">
+                <TabsTrigger
+                  value="prelaunch"
+                  className="flex-1 text-foreground bg-transparent border-none"
+                >
+                  Pre-Launch Week
+                </TabsTrigger>
+                <TabsTrigger value="launch" className="flex-1">
+                  Launch Day
+                </TabsTrigger>
+                <TabsTrigger value="campaign" className="flex-1">
+                  Marketing Campaign
+                </TabsTrigger>
+                <TabsTrigger value="metrics" className="flex-1">
+                  Metrics & Goals
+                </TabsTrigger>
+              </TabsList>
             </div>
 
-            <Tabs defaultValue="prelaunch" className="p-0">
-              <div className="border-b">
-                <TabsList className="mx-6 mt-6 w-auto bg-background">
-                  <TabsTrigger
-                    value="prelaunch"
-                    className="flex-1 text-foreground bg-transparent border-none"
+            <CardContent className="p-10">
+              {/* Pre-Launch Tab */}
+              <TabsContent value="prelaunch" className="space-y-6">
+                <div className="rounded-lg border-l-4 border-yellow-500 bg-secondary/50 p-5">
+                  <strong className="block text-primary">
+                    ⏰ Critical Timeline
+                  </strong>
+                  <p className="text-muted-foreground">
+                    You have 7 days until launch. Focus on high-impact
+                    activities that drive immediate traction.
+                  </p>
+                </div>
+
+                {prelaunchPhases.map((phase) => (
+                  <div
+                    key={phase.id}
+                    className="rounded-xl border-l-4 border-primary bg-background p-6"
                   >
-                    Pre-Launch Week
-                  </TabsTrigger>
-                  <TabsTrigger value="launch" className="flex-1">
-                    Launch Day
-                  </TabsTrigger>
-                  <TabsTrigger value="campaign" className="flex-1">
-                    Marketing Campaign
-                  </TabsTrigger>
-                  <TabsTrigger value="metrics" className="flex-1">
-                    Metrics & Goals
-                  </TabsTrigger>
-                </TabsList>
-              </div>
+                    <div className="mb-5 flex items-center justify-between">
+                      <h2 className="flex items-center gap-2 text-2xl font-semibold">
+                        📋 {phase.title}
+                      </h2>
+                      <Badge
+                        variant="secondary"
+                        className="bg-background text-foreground"
+                      >
+                        {phase.timeline}
+                      </Badge>
+                    </div>
 
-              <CardContent className="p-10">
-                {/* Pre-Launch Tab */}
-                <TabsContent value="prelaunch" className="space-y-6">
-                  <div className="rounded-lg border-l-4 border-yellow-500 bg-secondary/50 p-5">
-                    <strong className="block text-primary">
-                      ⏰ Critical Timeline
-                    </strong>
-                    <p className="text-muted-foreground">
-                      You have 7 days until launch. Focus on high-impact
-                      activities that drive immediate traction.
-                    </p>
-                  </div>
-
-                  {prelaunchPhases.map((phase) => (
-                    <div
-                      key={phase.id}
-                      className="rounded-xl border-l-4 border-primary bg-background p-6"
-                    >
-                      <div className="mb-5 flex items-center justify-between">
-                        <h2 className="flex items-center gap-2 text-2xl font-semibold">
-                          📋 {phase.title}
-                        </h2>
-                        <Badge
-                          variant="secondary"
-                          className="bg-background text-foreground"
+                    <div className="space-y-3">
+                      {phase.items.map((item) => (
+                        <div
+                          key={item.id}
+                          onClick={() => togglePrelaunchItem(phase.id, item.id)}
+                          className={cn(
+                            "cursor-pointer rounded-lg border-2 border-transparent bg-background p-4 transition-all hover:translate-x-1 hover:border-primary text-foreground",
+                            item.completed &&
+                              "bg-primary/10 opacity-60 text-primary"
+                          )}
                         >
-                          {phase.timeline}
-                        </Badge>
-                      </div>
-
-                      <div className="space-y-3">
-                        {phase.items.map((item) => (
-                          <div
-                            key={item.id}
-                            onClick={() =>
-                              togglePrelaunchItem(phase.id, item.id)
-                            }
-                            className={cn(
-                              "cursor-pointer rounded-lg border-2 border-transparent bg-background p-4 transition-all hover:translate-x-1 hover:border-primary text-foreground",
-                              item.completed &&
-                                "bg-primary/10 opacity-60 text-primary"
-                            )}
-                          >
-                            <div className="flex items-start gap-4">
-                              <div
-                                className={cn(
-                                  "mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 border-primary transition-all",
-                                  item.completed && "bg-primary/10"
-                                )}
-                              >
-                                {item.completed && (
-                                  <span className="text-sm font-bold text-primary">
-                                    ✓
-                                  </span>
+                          <div className="flex items-start gap-4">
+                            <div
+                              className={cn(
+                                "mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 border-primary transition-all",
+                                item.completed && "bg-primary/10"
+                              )}
+                            >
+                              {item.completed && (
+                                <span className="text-sm font-bold text-primary">
+                                  ✓
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex-1">
+                              <div className="mb-1 flex items-center gap-2">
+                                <strong className="text-primary">
+                                  {item.title}
+                                </strong>
+                                {item.priority && (
+                                  <Badge
+                                    variant={
+                                      item.priority === "high"
+                                        ? "destructive"
+                                        : "secondary"
+                                    }
+                                    className={cn(
+                                      item.priority === "high" &&
+                                        "bg-background text-primary",
+                                      item.priority === "medium" &&
+                                        "bg-background text-primary"
+                                    )}
+                                  >
+                                    {item.priority.toUpperCase()}
+                                  </Badge>
                                 )}
                               </div>
-                              <div className="flex-1">
-                                <div className="mb-1 flex items-center gap-2">
-                                  <strong className="text-primary">
-                                    {item.title}
-                                  </strong>
-                                  {item.priority && (
-                                    <Badge
-                                      variant={
-                                        item.priority === "high"
-                                          ? "destructive"
-                                          : "secondary"
-                                      }
-                                      className={cn(
-                                        item.priority === "high" &&
-                                          "bg-background text-primary",
-                                        item.priority === "medium" &&
-                                          "bg-background text-primary"
-                                      )}
-                                    >
-                                      {item.priority.toUpperCase()}
-                                    </Badge>
-                                  )}
-                                </div>
-                                <p
-                                  className="text-sm text-muted-foreground"
-                                  dangerouslySetInnerHTML={{
-                                    __html: item.description,
-                                  }}
-                                />
-                              </div>
+                              <p
+                                className="text-sm text-muted-foreground"
+                                dangerouslySetInnerHTML={{
+                                  __html: item.description,
+                                }}
+                              />
                             </div>
                           </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-
-                  <div className="mt-8">
-                    <div className="h-2 overflow-hidden rounded-full bg-gray-200">
-                      <div
-                        className="h-full rounded-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-300"
-                        style={{ width: `${prelaunchProgress}%` }}
-                      />
-                    </div>
-                    <div className="mt-2 text-center font-semibold text-primary">
-                      {prelaunchProgress}% Complete
+                        </div>
+                      ))}
                     </div>
                   </div>
-                </TabsContent>
+                ))}
 
-                {/* Launch Day Tab */}
-                <TabsContent value="launch" className="space-y-6">
-                  <div className="rounded-lg border-l-4 text-primary border-primary bg-background p-5">
-                    <strong className="block">💡 Launch Day Success Tip</strong>
-                    <p className="text-muted-foreground">
-                      Launch day isn&apos;t just one day—it&apos;s a 3-day push.
-                      Front-load your efforts Monday-Wednesday for maximum
-                      impact.
-                    </p>
-                  </div>
-
-                  {launchPhases.map((phase) => (
+                <div className="mt-8">
+                  <div className="h-2 overflow-hidden rounded-full bg-gray-200">
                     <div
-                      key={phase.id}
-                      className="rounded-xl border-l-4 border-primary bg-background p-6"
-                    >
-                      <div className="mb-5 flex items-center justify-between">
-                        <h2 className="flex items-center gap-2 text-2xl font-semibold text-primary">
-                          🎉 {phase.title}
-                        </h2>
-                        <Badge
-                          variant="secondary"
-                          className="bg-background text-primary"
-                        >
-                          {phase.timeline}
-                        </Badge>
-                      </div>
+                      className="h-full rounded-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-300"
+                      style={{ width: `${prelaunchProgress}%` }}
+                    />
+                  </div>
+                  <div className="mt-2 text-center font-semibold text-primary">
+                    {prelaunchProgress}% Complete
+                  </div>
+                </div>
+              </TabsContent>
 
-                      <div className="space-y-3">
-                        {phase.items.map((item) => (
-                          <div
-                            key={item.id}
-                            onClick={() => toggleLaunchItem(phase.id, item.id)}
-                            className={cn(
-                              "cursor-pointer rounded-lg border-2 border-transparent bg-background p-4 transition-all hover:translate-x-1 hover:border-primary text-foreground",
-                              item.completed &&
-                                "bg-primary/10 opacity-60 text-primary"
-                            )}
-                          >
-                            <div className="flex items-start gap-4">
-                              <div
-                                className={cn(
-                                  "mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 border-primary transition-all",
-                                  item.completed && "bg-primary/10"
-                                )}
-                              >
-                                {item.completed && (
-                                  <span className="text-sm font-bold text-primary">
-                                    ✓
-                                  </span>
+              {/* Launch Day Tab */}
+              <TabsContent value="launch" className="space-y-6">
+                <div className="rounded-lg border-l-4 text-primary border-primary bg-background p-5">
+                  <strong className="block">💡 Launch Day Success Tip</strong>
+                  <p className="text-muted-foreground">
+                    Launch day isn&apos;t just one day—it&apos;s a 3-day push.
+                    Front-load your efforts Monday-Wednesday for maximum impact.
+                  </p>
+                </div>
+
+                {launchPhases.map((phase) => (
+                  <div
+                    key={phase.id}
+                    className="rounded-xl border-l-4 border-primary bg-background p-6"
+                  >
+                    <div className="mb-5 flex items-center justify-between">
+                      <h2 className="flex items-center gap-2 text-2xl font-semibold text-primary">
+                        🎉 {phase.title}
+                      </h2>
+                      <Badge
+                        variant="secondary"
+                        className="bg-background text-primary"
+                      >
+                        {phase.timeline}
+                      </Badge>
+                    </div>
+
+                    <div className="space-y-3">
+                      {phase.items.map((item) => (
+                        <div
+                          key={item.id}
+                          onClick={() => toggleLaunchItem(phase.id, item.id)}
+                          className={cn(
+                            "cursor-pointer rounded-lg border-2 border-transparent bg-background p-4 transition-all hover:translate-x-1 hover:border-primary text-foreground",
+                            item.completed &&
+                              "bg-primary/10 opacity-60 text-primary"
+                          )}
+                        >
+                          <div className="flex items-start gap-4">
+                            <div
+                              className={cn(
+                                "mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 border-primary transition-all",
+                                item.completed && "bg-primary/10"
+                              )}
+                            >
+                              {item.completed && (
+                                <span className="text-sm font-bold text-primary">
+                                  ✓
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex-1">
+                              <div className="mb-1 flex items-center gap-2">
+                                <strong className="text-primary">
+                                  {item.title}
+                                </strong>
+                                {item.priority && (
+                                  <Badge
+                                    variant={
+                                      item.priority === "high"
+                                        ? "destructive"
+                                        : "secondary"
+                                    }
+                                    className={cn(
+                                      item.priority === "high" &&
+                                        "bg-background text-primary",
+                                      item.priority === "medium" &&
+                                        "bg-background text-primary"
+                                    )}
+                                  >
+                                    {item.priority.toUpperCase()}
+                                  </Badge>
                                 )}
                               </div>
-                              <div className="flex-1">
-                                <div className="mb-1 flex items-center gap-2">
-                                  <strong className="text-primary">
-                                    {item.title}
-                                  </strong>
-                                  {item.priority && (
-                                    <Badge
-                                      variant={
-                                        item.priority === "high"
-                                          ? "destructive"
-                                          : "secondary"
-                                      }
-                                      className={cn(
-                                        item.priority === "high" &&
-                                          "bg-background text-primary",
-                                        item.priority === "medium" &&
-                                          "bg-background text-primary"
-                                      )}
-                                    >
-                                      {item.priority.toUpperCase()}
-                                    </Badge>
-                                  )}
-                                </div>
-                                <p
-                                  className="text-sm text-muted-foreground"
-                                  dangerouslySetInnerHTML={{
-                                    __html: item.description,
-                                  }}
-                                />
-                              </div>
+                              <p
+                                className="text-sm text-muted-foreground"
+                                dangerouslySetInnerHTML={{
+                                  __html: item.description,
+                                }}
+                              />
                             </div>
                           </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-
-                  <div className="mt-8">
-                    <div className="h-2 overflow-hidden rounded-full bg-gray-200">
-                      <div
-                        className="h-full rounded-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-300"
-                        style={{ width: `${launchProgress}%` }}
-                      />
-                    </div>
-                    <div className="mt-2 text-center font-semibold text-primary">
-                      {launchProgress}% Complete
+                        </div>
+                      ))}
                     </div>
                   </div>
-                </TabsContent>
+                ))}
 
-                {/* Marketing Campaign Tab */}
-                <TabsContent value="campaign" className="space-y-6">
-                  <h2 className="mb-6 text-3xl font-semibold text-primary">
-                    🎯 Ongoing Marketing Tactics (Week 2+)
-                  </h2>
-
-                  {tactics.map((tactic, index) => (
+                <div className="mt-8">
+                  <div className="h-2 overflow-hidden rounded-full bg-gray-200">
                     <div
-                      key={index}
-                      className="rounded-xl border-2 border-primary bg-background p-6 transition-all hover:border-primary hover:shadow-lg"
-                    >
-                      <div className="mb-4 flex items-center gap-3">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 text-2xl">
-                          {tactic.icon}
-                        </div>
-                        <div>
-                          <h3 className="text-xl font-semibold text-primary">
-                            {tactic.title}
-                          </h3>
-                          <Badge
-                            variant="secondary"
-                            className="mt-1 bg-background text-primary"
-                          >
-                            {tactic.metric}
-                          </Badge>
-                        </div>
-                      </div>
-                      <ul className="ml-5 space-y-2">
-                        {tactic.items.map((item, itemIndex) => (
-                          <li
-                            key={itemIndex}
-                            className="text-muted-foreground"
-                            dangerouslySetInnerHTML={{ __html: item }}
-                          />
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-
-                  <div className="rounded-lg border-l-4 border-primary bg-background p-5">
-                    <strong className="block text-primary">
-                      🎯 Focus Areas for Months 1-3
-                    </strong>
-                    <p className="text-muted-foreground">
-                      Don&apos;t spread too thin! Prioritize: (1) LinkedIn
-                      content + engagement, (2) Partnership with 2-3
-                      accelerators, (3) Weekly valuable content, (4) Direct
-                      outreach to warm leads. Perfect these before scaling to
-                      other channels.
-                    </p>
+                      className="h-full rounded-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-300"
+                      style={{ width: `${launchProgress}%` }}
+                    />
                   </div>
-                </TabsContent>
+                  <div className="mt-2 text-center font-semibold text-primary">
+                    {launchProgress}% Complete
+                  </div>
+                </div>
+              </TabsContent>
 
-                {/* Metrics & Goals Tab */}
-                <TabsContent value="metrics" className="space-y-6">
-                  <h2 className="mb-6 text-3xl font-semibold text-primary">
-                    📊 Success Metrics & Goals
-                  </h2>
+              {/* Marketing Campaign Tab */}
+              <TabsContent value="campaign" className="space-y-6">
+                <h2 className="mb-6 text-3xl font-semibold text-primary">
+                  🎯 Ongoing Marketing Tactics (Week 2+)
+                </h2>
 
-                  <div className="space-y-6">
-                    <div>
-                      <div className="mb-4 flex items-center justify-between">
-                        <h2 className="text-2xl font-semibold text-primary">
-                          Week 1 Goals (Launch Week)
-                        </h2>
+                {tactics.map((tactic, index) => (
+                  <div
+                    key={index}
+                    className="rounded-xl border-2 border-primary bg-background p-6 transition-all hover:border-primary hover:shadow-lg"
+                  >
+                    <div className="mb-4 flex items-center gap-3">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 text-2xl">
+                        {tactic.icon}
                       </div>
-
-                      <div className="space-y-4">
-                        <div className="rounded-xl border-2 border-primary bg-background p-6">
-                          <h3 className="mb-3 text-lg font-semibold text-primary">
-                            Website Metrics
-                          </h3>
-                          <ul className="space-y-2">
-                            <li className="text-muted-foreground">
-                              ✅ <strong>500-1,000 unique visitors</strong> in
-                              first week
-                            </li>
-                            <li className="text-muted-foreground">
-                              ✅ <strong>2-3 minute average session</strong>{" "}
-                              duration
-                            </li>
-                            <li className="text-muted-foreground">
-                              ✅ <strong>10-15 consultation requests</strong> or
-                              contact form fills
-                            </li>
-                            <li className="text-muted-foreground">
-                              ✅ <strong>2-5 qualified leads</strong> (startups
-                              actively seeking help)
-                            </li>
-                          </ul>
-                        </div>
-
-                        <div className="rounded-xl border-2 border-primary bg-background p-6">
-                          <h3 className="mb-3 text-lg font-semibold text-primary">
-                            Social Engagement
-                          </h3>
-                          <ul className="space-y-2">
-                            <li className="text-muted-foreground">
-                              ✅{" "}
-                              <strong>50-100 LinkedIn post engagements</strong>{" "}
-                              (likes, comments, shares)
-                            </li>
-                            <li className="text-muted-foreground">
-                              ✅ <strong>200-500 profile views</strong> on
-                              LinkedIn
-                            </li>
-                            <li className="text-muted-foreground">
-                              ✅ <strong>10-20 meaningful conversations</strong>{" "}
-                              with potential clients
-                            </li>
-                            <li className="text-muted-foreground">
-                              ✅ <strong>20-30 new followers</strong> across
-                              platforms
-                            </li>
-                          </ul>
-                        </div>
+                      <div>
+                        <h3 className="text-xl font-semibold text-primary">
+                          {tactic.title}
+                        </h3>
+                        <Badge
+                          variant="secondary"
+                          className="mt-1 bg-background text-primary"
+                        >
+                          {tactic.metric}
+                        </Badge>
                       </div>
                     </div>
+                    <ul className="ml-5 space-y-2">
+                      {tactic.items.map((item, itemIndex) => (
+                        <li
+                          key={itemIndex}
+                          className="text-muted-foreground"
+                          dangerouslySetInnerHTML={{ __html: item }}
+                        />
+                      ))}
+                    </ul>
+                  </div>
+                ))}
 
-                    <div>
-                      <div className="mb-4 flex items-center justify-between">
-                        <h2 className="text-2xl font-semibold text-primary">
-                          Month 1 Goals (December)
-                        </h2>
-                      </div>
+                <div className="rounded-lg border-l-4 border-primary bg-background p-5">
+                  <strong className="block text-primary">
+                    🎯 Focus Areas for Months 1-3
+                  </strong>
+                  <p className="text-muted-foreground">
+                    Don&apos;t spread too thin! Prioritize: (1) LinkedIn content
+                    + engagement, (2) Partnership with 2-3 accelerators, (3)
+                    Weekly valuable content, (4) Direct outreach to warm leads.
+                    Perfect these before scaling to other channels.
+                  </p>
+                </div>
+              </TabsContent>
 
-                      <div className="space-y-4">
-                        <div className="rounded-xl border-2 border-primary bg-background p-6">
-                          <h3 className="mb-3 text-lg font-semibold text-primary">
-                            Lead Generation
-                          </h3>
-                          <ul className="space-y-2">
-                            <li className="text-muted-foreground">
-                              🎯 <strong>50-100 total leads</strong> (email
-                              signups, consultations, inquiries)
-                            </li>
-                            <li className="text-muted-foreground">
-                              🎯{" "}
-                              <strong>10-20 qualified discovery calls</strong>
-                            </li>
-                            <li className="text-muted-foreground">
-                              🎯 <strong>3-5 proposals sent</strong> to
-                              potential clients
-                            </li>
-                            <li className="text-muted-foreground">
-                              🎯 <strong>1-2 new client contracts</strong>{" "}
-                              signed
-                            </li>
-                          </ul>
-                        </div>
+              {/* Metrics & Goals Tab */}
+              <TabsContent value="metrics" className="space-y-6">
+                <h2 className="mb-6 text-3xl font-semibold text-primary">
+                  📊 Success Metrics & Goals
+                </h2>
 
-                        <div className="rounded-xl border-2 border-primary bg-background p-6">
-                          <h3 className="mb-3 text-lg font-semibold text-primary">
-                            Content & Authority
-                          </h3>
-                          <ul className="space-y-2">
-                            <li className="text-muted-foreground">
-                              🎯 <strong>12-15 LinkedIn posts</strong> published
-                            </li>
-                            <li className="text-muted-foreground">
-                              🎯 <strong>2-3 blog articles</strong> on website
-                            </li>
-                            <li className="text-muted-foreground">
-                              🎯 <strong>1-2 case studies</strong> documented
-                            </li>
-                            <li className="text-muted-foreground">
-                              🎯 <strong>1 partnership</strong> established
-                              (accelerator/coworking)
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
+                <div className="space-y-6">
+                  <div>
+                    <div className="mb-4 flex items-center justify-between">
+                      <h2 className="text-2xl font-semibold text-primary">
+                        Week 1 Goals (Launch Week)
+                      </h2>
                     </div>
 
-                    <div>
-                      <div className="mb-4 flex items-center justify-between">
-                        <h2 className="text-2xl font-semibold text-primary">
-                          Quarter 1 Goals (Dec-Feb)
-                        </h2>
+                    <div className="space-y-4">
+                      <div className="rounded-xl border-2 border-primary bg-background p-6">
+                        <h3 className="mb-3 text-lg font-semibold text-primary">
+                          Website Metrics
+                        </h3>
+                        <ul className="space-y-2">
+                          <li className="text-muted-foreground">
+                            ✅ <strong>500-1,000 unique visitors</strong> in
+                            first week
+                          </li>
+                          <li className="text-muted-foreground">
+                            ✅ <strong>2-3 minute average session</strong>{" "}
+                            duration
+                          </li>
+                          <li className="text-muted-foreground">
+                            ✅ <strong>10-15 consultation requests</strong> or
+                            contact form fills
+                          </li>
+                          <li className="text-muted-foreground">
+                            ✅ <strong>2-5 qualified leads</strong> (startups
+                            actively seeking help)
+                          </li>
+                        </ul>
                       </div>
 
-                      <div className="space-y-4">
-                        <div className="rounded-xl border-2 border-primary bg-background p-6">
-                          <h3 className="mb-3 text-lg font-semibold text-gray-900">
-                            Business Growth
-                          </h3>
-                          <ul className="space-y-2">
-                            <li className="text-muted-foreground">
-                              🚀 <strong>5-8 active client projects</strong>
-                            </li>
-                            <li className="text-muted-foreground">
-                              🚀 <strong>€30-50K revenue</strong> generated
-                            </li>
-                            <li className="text-muted-foreground">
-                              🚀 <strong>3-5 strategic partnerships</strong>{" "}
-                              (accelerators, communities)
-                            </li>
-                            <li className="text-muted-foreground">
-                              🚀 <strong>300-500 email subscribers</strong>
-                            </li>
-                          </ul>
-                        </div>
-
-                        <div className="rounded-xl border-2 border-primary bg-background p-6">
-                          <h3 className="mb-3 text-lg font-semibold text-gray-900">
-                            Brand Presence
-                          </h3>
-                          <ul className="space-y-2">
-                            <li className="text-muted-foreground">
-                              🚀 <strong>1,000+ LinkedIn followers</strong>
-                            </li>
-                            <li className="text-muted-foreground">
-                              🚀 <strong>2-3 speaking engagements</strong> or
-                              podcast appearances
-                            </li>
-                            <li className="text-muted-foreground">
-                              🚀 <strong>5+ client testimonials</strong> and
-                              case studies
-                            </li>
-                            <li className="text-muted-foreground">
-                              🚀 Known as &quot;go-to technical partner&quot; in
-                              2-3 accelerators
-                            </li>
-                          </ul>
-                        </div>
+                      <div className="rounded-xl border-2 border-primary bg-background p-6">
+                        <h3 className="mb-3 text-lg font-semibold text-primary">
+                          Social Engagement
+                        </h3>
+                        <ul className="space-y-2">
+                          <li className="text-muted-foreground">
+                            ✅ <strong>50-100 LinkedIn post engagements</strong>{" "}
+                            (likes, comments, shares)
+                          </li>
+                          <li className="text-muted-foreground">
+                            ✅ <strong>200-500 profile views</strong> on
+                            LinkedIn
+                          </li>
+                          <li className="text-muted-foreground">
+                            ✅ <strong>10-20 meaningful conversations</strong>{" "}
+                            with potential clients
+                          </li>
+                          <li className="text-muted-foreground">
+                            ✅ <strong>20-30 new followers</strong> across
+                            platforms
+                          </li>
+                        </ul>
                       </div>
                     </div>
                   </div>
 
-                  <div className="rounded-lg border-l-4 border-primary bg-background p-5">
-                    <strong className="block text-primary">
-                      📈 Track Weekly
-                    </strong>
-                    <p className="text-muted-foreground">
-                      Every Monday, review: website traffic, new leads,
-                      conversion rate, social engagement, content performance.
-                      Adjust tactics based on what&apos;s working. Use Google
-                      Analytics + a simple spreadsheet to stay organized.
-                    </p>
+                  <div>
+                    <div className="mb-4 flex items-center justify-between">
+                      <h2 className="text-2xl font-semibold text-primary">
+                        Month 1 Goals (December)
+                      </h2>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div className="rounded-xl border-2 border-primary bg-background p-6">
+                        <h3 className="mb-3 text-lg font-semibold text-primary">
+                          Lead Generation
+                        </h3>
+                        <ul className="space-y-2">
+                          <li className="text-muted-foreground">
+                            🎯 <strong>50-100 total leads</strong> (email
+                            signups, consultations, inquiries)
+                          </li>
+                          <li className="text-muted-foreground">
+                            🎯 <strong>10-20 qualified discovery calls</strong>
+                          </li>
+                          <li className="text-muted-foreground">
+                            🎯 <strong>3-5 proposals sent</strong> to potential
+                            clients
+                          </li>
+                          <li className="text-muted-foreground">
+                            🎯 <strong>1-2 new client contracts</strong> signed
+                          </li>
+                        </ul>
+                      </div>
+
+                      <div className="rounded-xl border-2 border-primary bg-background p-6">
+                        <h3 className="mb-3 text-lg font-semibold text-primary">
+                          Content & Authority
+                        </h3>
+                        <ul className="space-y-2">
+                          <li className="text-muted-foreground">
+                            🎯 <strong>12-15 LinkedIn posts</strong> published
+                          </li>
+                          <li className="text-muted-foreground">
+                            🎯 <strong>2-3 blog articles</strong> on website
+                          </li>
+                          <li className="text-muted-foreground">
+                            🎯 <strong>1-2 case studies</strong> documented
+                          </li>
+                          <li className="text-muted-foreground">
+                            🎯 <strong>1 partnership</strong> established
+                            (accelerator/coworking)
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="rounded-lg border-l-4 border-primary bg-background p-5">
-                    <strong className="block text-primary">
-                      💡 What &quot;Good&quot; Looks Like
-                    </strong>
-                    <p className="text-muted-foreground">
-                      For a B2B service business like Collybrix, expect 2-5%
-                      website-to-lead conversion, 20-30% lead-to-discovery call
-                      conversion, 20-40% proposal-to-client conversion. Focus on
-                      quality over quantity—10 perfect-fit leads beat 100
-                      tire-kickers.
-                    </p>
+                  <div>
+                    <div className="mb-4 flex items-center justify-between">
+                      <h2 className="text-2xl font-semibold text-primary">
+                        Quarter 1 Goals (Dec-Feb)
+                      </h2>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div className="rounded-xl border-2 border-primary bg-background p-6">
+                        <h3 className="mb-3 text-lg font-semibold text-gray-900">
+                          Business Growth
+                        </h3>
+                        <ul className="space-y-2">
+                          <li className="text-muted-foreground">
+                            🚀 <strong>5-8 active client projects</strong>
+                          </li>
+                          <li className="text-muted-foreground">
+                            🚀 <strong>€30-50K revenue</strong> generated
+                          </li>
+                          <li className="text-muted-foreground">
+                            🚀 <strong>3-5 strategic partnerships</strong>{" "}
+                            (accelerators, communities)
+                          </li>
+                          <li className="text-muted-foreground">
+                            🚀 <strong>300-500 email subscribers</strong>
+                          </li>
+                        </ul>
+                      </div>
+
+                      <div className="rounded-xl border-2 border-primary bg-background p-6">
+                        <h3 className="mb-3 text-lg font-semibold text-gray-900">
+                          Brand Presence
+                        </h3>
+                        <ul className="space-y-2">
+                          <li className="text-muted-foreground">
+                            🚀 <strong>1,000+ LinkedIn followers</strong>
+                          </li>
+                          <li className="text-muted-foreground">
+                            🚀 <strong>2-3 speaking engagements</strong> or
+                            podcast appearances
+                          </li>
+                          <li className="text-muted-foreground">
+                            🚀 <strong>5+ client testimonials</strong> and case
+                            studies
+                          </li>
+                          <li className="text-muted-foreground">
+                            🚀 Known as &quot;go-to technical partner&quot; in
+                            2-3 accelerators
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
                   </div>
-                </TabsContent>
-              </CardContent>
-            </Tabs>
-          </Card>
-        </div>
+                </div>
+
+                <div className="rounded-lg border-l-4 border-primary bg-background p-5">
+                  <strong className="block text-primary">
+                    📈 Track Weekly
+                  </strong>
+                  <p className="text-muted-foreground">
+                    Every Monday, review: website traffic, new leads, conversion
+                    rate, social engagement, content performance. Adjust tactics
+                    based on what&apos;s working. Use Google Analytics + a
+                    simple spreadsheet to stay organized.
+                  </p>
+                </div>
+
+                <div className="rounded-lg border-l-4 border-primary bg-background p-5">
+                  <strong className="block text-primary">
+                    💡 What &quot;Good&quot; Looks Like
+                  </strong>
+                  <p className="text-muted-foreground">
+                    For a B2B service business like Collybrix, expect 2-5%
+                    website-to-lead conversion, 20-30% lead-to-discovery call
+                    conversion, 20-40% proposal-to-client conversion. Focus on
+                    quality over quantity—10 perfect-fit leads beat 100
+                    tire-kickers.
+                  </p>
+                </div>
+              </TabsContent>
+            </CardContent>
+          </Tabs>
+        </Card>
       </div>
-    </LayoutWrapper>
+    </div>
   );
 }
