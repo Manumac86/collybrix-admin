@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 
 import { Analytics } from "@vercel/analytics/next";
 import { Toaster } from "sonner";
-import { ClerkProvider } from "@clerk/nextjs";
+import { ClerkProvider, SignedIn, SignedOut } from "@clerk/nextjs";
 import { LayoutWrapper } from "@/components/layout-wrapper";
 import "./globals.css";
 
@@ -58,7 +58,10 @@ export default function RootLayout({
       <html lang="en" suppressHydrationWarning>
         <body className={`font-sans antialiased bg-background text-foreground`}>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <LayoutWrapper>{children}</LayoutWrapper>
+            <SignedIn>
+              <LayoutWrapper>{children}</LayoutWrapper>
+            </SignedIn>
+            <SignedOut>{children}</SignedOut>
             <Toaster position="top-right" richColors />
           </ThemeProvider>
           <Analytics />

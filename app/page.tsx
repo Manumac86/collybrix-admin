@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { SignedIn, SignedOut, useAuth, useSignIn } from "@clerk/nextjs";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
@@ -19,17 +19,16 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  if (isSignedIn) {
+    redirect("/dashboard");
+  }
+
   if (!isLoaded) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         Loading...
       </div>
     );
-  }
-
-  if (isSignedIn) {
-    router.push("/dashboard");
-    return null;
   }
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
