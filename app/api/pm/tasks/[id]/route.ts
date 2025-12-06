@@ -119,7 +119,10 @@ export async function PUT(
       updateDoc.projectId = new ObjectId(validated.projectId);
     }
     if (validated.assigneeId !== undefined) {
-      updateDoc.assigneeId = validated.assigneeId; // Keep as string (Clerk user ID)
+      updateDoc.assigneeId = validated.assigneeId; // DEPRECATED: Keep as string (Clerk user ID)
+    }
+    if (validated.assigneeIds !== undefined) {
+      updateDoc.assigneeIds = validated.assigneeIds; // Array of Clerk user IDs
     }
     if (validated.reporterId) {
       updateDoc.reporterId = validated.reporterId; // Keep as string (Clerk user ID)

@@ -10,7 +10,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import { useProject } from "@/hooks/projects";
-import { useCreateTask, useUsers } from "@/hooks/pm";
+import { useCreateTask, useUsers, useTags } from "@/hooks/pm";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Breadcrumbs } from "@/components/pm/shared/breadcrumbs";
 import { ErrorBoundary } from "@/components/pm/shared/error-boundary";
@@ -55,6 +55,9 @@ export default function PMLayout({ children, params }: PMLayoutProps) {
 
   // Fetch users for assignment
   const { users } = useUsers();
+
+  // Fetch tags for the project
+  const { tags } = useTags(projectId);
 
   const tabs = [
     {
@@ -132,21 +135,20 @@ export default function PMLayout({ children, params }: PMLayoutProps) {
       onNewTask={handleNewTask}
       onSearch={handleSearchFocus}
     >
-      <div className="flex-1 flex flex-col h-full overflow-hidden bg-background">
+      <div className="p-8 flex-1 flex flex-col h-full overflow-hidden bg-background">
+        {/* Breadcrumbs */}
+        <Breadcrumbs projectName={project?.name} projectId={projectId} />
         {/* Header with Breadcrumbs and Project Info */}
         <div className="border-b border-border bg-background">
           <div className="py-4 space-y-3">
-            {/* Breadcrumbs */}
-            <Breadcrumbs projectName={project?.name} projectId={projectId} />
-
             {/* Project Title */}
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold text-foreground">
+                <h1 className="text-3xl font-bold text-foreground">
                   {isLoading ? "Loading..." : project?.name || "Project"}
                 </h1>
                 {project?.company && (
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                  <p className="text-gray-600 dark:text-gray-400 mt-1">
                     {project.company}
                   </p>
                 )}
@@ -242,6 +244,7 @@ export default function PMLayout({ children, params }: PMLayoutProps) {
           projectId={projectId}
           currentUserId={userId || ""}
           users={users}
+          tags={tags}
           mode="create"
         />
       </div>

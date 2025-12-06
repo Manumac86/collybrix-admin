@@ -54,7 +54,8 @@ export const taskCreateSchema = z.object({
     .transform((val) => Number(val))
     .nullable()
     .default(null),
-  assigneeId: userIdSchema.nullable().default(null),
+  assigneeId: userIdSchema.nullable().optional(), // DEPRECATED: Use assigneeIds instead. Kept for backwards compatibility
+  assigneeIds: z.array(userIdSchema).default([]),
   reporterId: userIdSchema,
   sprintId: objectIdSchema.nullable().default(null),
   tags: z.array(objectIdSchema).default([]),
@@ -103,7 +104,8 @@ export const taskPartialUpdateSchema = z.object({
     .transform((val) => Number(val))
     .nullable()
     .optional(),
-  assigneeId: userIdSchema.nullable().optional(),
+  assigneeId: userIdSchema.nullable().optional(), // DEPRECATED: Use assigneeIds instead
+  assigneeIds: z.array(userIdSchema).optional(),
   sprintId: objectIdSchema.nullable().optional(),
   tags: z.array(objectIdSchema).optional(),
   acceptanceCriteria: z.array(acceptanceCriterionSchema).optional(),
@@ -338,7 +340,8 @@ export const taskQuerySchema = z.object({
   priority: z
     .union([z.enum(TASK_PRIORITIES), z.array(z.enum(TASK_PRIORITIES))])
     .optional(),
-  assigneeId: z.union([userIdSchema, z.literal("null")]).optional(),
+  assigneeId: z.union([userIdSchema, z.literal("null")]).optional(), // DEPRECATED: Use assigneeIds instead
+  assigneeIds: z.array(userIdSchema).optional(), // Filter by multiple assignees
   tags: z.array(objectIdSchema).optional(),
   search: z.string().optional(),
   parentId: z.union([objectIdSchema, z.literal("null")]).optional(),

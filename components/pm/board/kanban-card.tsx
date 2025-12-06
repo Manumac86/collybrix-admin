@@ -15,11 +15,13 @@ import { cn } from "@/lib/utils";
 import { PriorityBadge } from "@/components/pm/shared/priority-badge";
 import { UserAvatar } from "@/components/pm/shared/user-avatar";
 import { Badge } from "@/components/ui/badge";
-import type { Task, TaskType, User } from "@/types/pm";
+import type { Tag, Task, TaskType, User } from "@/types/pm";
+import { useTags } from "@/hooks/pm";
 
 interface KanbanCardProps {
   task: Task;
-  assignee?: User | null;
+  assignee?: User | null; // DEPRECATED: Use assignees instead
+  assignees?: User[]; // Multiple assignees
   isDragging?: boolean;
   onClick?: () => void;
 }
@@ -47,7 +49,17 @@ const PRIORITY_BORDER_COLORS: Record<string, string> = {
   low: "border-l-gray-400",
 };
 
-function KanbanCardComponent({ task, assignee, isDragging, onClick }: KanbanCardProps) {
+function KanbanCardComponent({
+  task,
+  assignee,
+  assignees,
+  isDragging,
+  onClick,
+}: KanbanCardProps) {
+  // Support both old single assignee and new multiple assignees
+  const displayAssignees = assignees || (assignee ? [assignee] : []);
+  const { tags } = useTags(task.projectId.toString());
+  const taskTags = tags.filter((tag: Tag) => task.tags.includes(tag._id));
   const {
     attributes,
     listeners,
@@ -67,7 +79,10 @@ function KanbanCardComponent({ task, assignee, isDragging, onClick }: KanbanCard
   };
 
   const TypeIcon = TYPE_ICONS[task.type];
-  const isOverdue = task.dueDate && new Date(task.dueDate) < new Date() && task.status !== "done";
+  const isOverdue =
+    task.dueDate &&
+    new Date(task.dueDate) < new Date() &&
+    task.status !== "done";
 
   return (
     <div
@@ -102,13 +117,13 @@ function KanbanCardComponent({ task, assignee, isDragging, onClick }: KanbanCard
       {/* Tags */}
       {task.tags && task.tags.length > 0 && (
         <div className="flex flex-wrap gap-1">
-          {task.tags.slice(0, 3).map((tag) => (
+          {taskTags.map((tag: Tag) => (
             <Badge
-              key={tag.toString()}
+              key={tag._id.toString()}
               variant="outline"
               className="text-xs h-5 px-1.5"
             >
-              Tag
+              {tag.name}
             </Badge>
           ))}
           {task.tags.length > 3 && (
@@ -119,7 +134,7 @@ function KanbanCardComponent({ task, assignee, isDragging, onClick }: KanbanCard
         </div>
       )}
 
-      {/* Footer: Story Points + Assignee + Due Date */}
+      {/* Footer: Story Points + Assignees + Due Date */}
       <div className="mt-auto flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           {task.storyPoints !== null && (
@@ -128,12 +143,31 @@ function KanbanCardComponent({ task, assignee, isDragging, onClick }: KanbanCard
             </Badge>
           )}
           {isOverdue && (
-            <div className="flex items-center gap-1 text-xs text-red-600" title="Overdue">
+            <div
+              className="flex items-center gap-1 text-xs text-red-600"
+              title="Overdue"
+            >
               <Clock className="h-3 w-3" />
             </div>
           )}
         </div>
-        <UserAvatar user={assignee || null} size="sm" />
+        {/* Display multiple assignees */}
+        <div className="flex items-center -space-x-2">
+          {displayAssignees.slice(0, 3).map((user, index) => (
+            <div
+              key={user._id.toString()}
+              className="relative"
+              style={{ zIndex: 3 - index }}
+            >
+              <UserAvatar user={user} size="sm" />
+            </div>
+          ))}
+          {displayAssignees.length > 3 && (
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted border-2 border-background text-xs font-medium">
+              +{displayAssignees.length - 3}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

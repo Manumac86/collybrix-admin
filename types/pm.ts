@@ -63,7 +63,8 @@ export interface Task {
   priority: TaskPriority;
   status: TaskStatus;
   storyPoints: StoryPoint | null;
-  assigneeId: string | null; // Reference to User (Clerk user ID)
+  assigneeId: string | null; // DEPRECATED: Use assigneeIds instead. Kept for backwards compatibility
+  assigneeIds: string[]; // References to Users (Clerk user IDs) - supports multiple assignees
   reporterId: string; // User who created the item (Clerk user ID)
   sprintId: ObjectId | null; // null = unassigned to sprint
   tags: ObjectId[]; // References to Tag documents

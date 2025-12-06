@@ -10,7 +10,7 @@ import {
   BoardFiltersState,
 } from "@/components/pm/board/board-filters";
 import { TaskDetailPanel } from "@/components/pm/task/task-detail-panel";
-import { useTasks, usePatchAnyTask, useSprints, useUsers } from "@/hooks/pm";
+import { useTasks, usePatchAnyTask, useSprints, useUsers, useTags } from "@/hooks/pm";
 import { Button } from "@/components/ui/button";
 import type { Task, TaskStatus, User, Sprint } from "@/types/pm";
 
@@ -23,9 +23,10 @@ export default function BoardPage() {
   // Get current authenticated user from Clerk
   const { userId } = useAuth();
 
-  // Fetch users and sprints
+  // Fetch users, sprints and tags
   const { users } = useUsers();
   const { sprints } = useSprints(projectId);
+  const { tags } = useTags(projectId);
 
   // Load filters from localStorage
   const [filters, setFilters] = useState<BoardFiltersState>(() => {
@@ -251,6 +252,7 @@ export default function BoardPage() {
         isOpen={isPanelOpen}
         onClose={handleClosePanel}
         users={usersMap}
+        tags={tags}
         sprints={sprints}
         allTasks={tasks}
         onTaskClick={handleTaskClick}

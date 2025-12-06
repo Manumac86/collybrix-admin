@@ -69,11 +69,18 @@ export async function GET(request: NextRequest) {
         : validated.priority;
     }
 
+    // Support both old assigneeId (for backwards compatibility) and new assigneeIds
     if (validated.assigneeId !== undefined) {
       filter.assigneeId =
         validated.assigneeId === "null"
           ? null
           : validated.assigneeId; // Keep as string (Clerk user ID)
+    }
+
+    if (validated.assigneeIds && validated.assigneeIds.length > 0) {
+      filter.assigneeIds = {
+        $in: validated.assigneeIds,
+      };
     }
 
     if (validated.parentId !== undefined) {
@@ -170,7 +177,8 @@ export async function POST(request: NextRequest) {
     const taskDocument = {
       ...validated,
       projectId: new ObjectId(validated.projectId),
-      assigneeId: validated.assigneeId, // Keep as string (Clerk user ID)
+      assigneeId: validated.assigneeId || null, // DEPRECATED: For backwards compatibility
+      assigneeIds: validated.assigneeIds || [], // Array of Clerk user IDs
       reporterId: validated.reporterId, // Keep as string (Clerk user ID)
       sprintId: validated.sprintId ? new ObjectId(validated.sprintId) : null,
       parentId: validated.parentId ? new ObjectId(validated.parentId) : null,

@@ -11,13 +11,19 @@ import { PriorityBadge } from "@/components/pm/shared/priority-badge";
 import { StatusBadge } from "@/components/pm/shared/status-badge";
 import { UserAvatar } from "@/components/pm/shared/user-avatar";
 import { formatDate } from "@/lib/pm-utils";
-import type { Task, User as UserType, Sprint } from "@/types/pm";
+import type {
+  Task,
+  User as UserType,
+  Sprint,
+  Tag as TagType,
+} from "@/types/pm";
 
 interface TaskDetailPanelProps {
   task: Task | null;
   isOpen: boolean;
   onClose: () => void;
   users: Map<string, UserType>;
+  tags?: TagType[]; // Available tags for displaying tag info
   sprints: Sprint[];
   allTasks?: Task[]; // All tasks to find children
   onTaskClick?: (task: Task) => void; // For clicking on child tasks
@@ -28,6 +34,7 @@ export function TaskDetailPanel({
   isOpen,
   onClose,
   users,
+  tags = [],
   sprints,
   allTasks = [],
   onTaskClick,
@@ -56,15 +63,32 @@ export function TaskDetailPanel({
 
   if (!task && !isAnimating) return null;
 
-  const assignee = task?.assigneeId
-    ? users.get(task.assigneeId.toString())
-    : null;
+  // Get assignees (support both old assigneeId and new assigneeIds)
+  const assignees =
+    task?.assigneeIds && task.assigneeIds.length > 0
+      ? (task.assigneeIds
+          .map((id) => users.get(id.toString()))
+          .filter(Boolean) as UserType[])
+      : task?.assigneeId
+      ? ([users.get(task.assigneeId.toString())].filter(Boolean) as UserType[])
+      : [];
+
   const reporter = task?.reporterId
     ? users.get(task.reporterId.toString())
     : null;
   const sprint = task?.sprintId
     ? sprints.find((s) => s._id.toString() === task.sprintId?.toString())
     : null;
+
+  // Get task tags with details
+  const taskTags =
+    task?.tags && task.tags.length > 0
+      ? (task.tags
+          .map((tagId) =>
+            tags.find((t) => t._id.toString() === tagId.toString())
+          )
+          .filter(Boolean) as TagType[])
+      : [];
 
   // Find children tasks if this is an Epic or Story
   const childrenTasks =
@@ -137,7 +161,7 @@ export function TaskDetailPanel({
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto py-6 space-y-6">
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
               {/* Description */}
               <div>
                 <h3 className="text-sm font-semibold text-foreground mb-2">
@@ -181,18 +205,31 @@ export function TaskDetailPanel({
                   </p>
                 </div>
 
-                {/* Assignee */}
+                {/* Assignees */}
                 <div>
                   <h4 className="text-xs font-medium text-muted-foreground mb-1 flex items-center gap-1">
                     <User className="h-3 w-3" />
-                    Assignee
+                    Assignees ({assignees.length})
                   </h4>
-                  <div className="flex items-center gap-2">
-                    <UserAvatar user={assignee || null} size="sm" />
-                    <span className="text-sm">
-                      {assignee?.name || "Unassigned"}
+                  {assignees.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {assignees.map((assignee) => (
+                        <div
+                          key={assignee._id.toString()}
+                          className="flex items-center gap-1.5 bg-muted rounded-md px-2 py-1"
+                        >
+                          <UserAvatar user={assignee} size="sm" />
+                          <span className="text-xs font-medium">
+                            {assignee.name}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="text-sm text-muted-foreground">
+                      Unassigned
                     </span>
-                  </div>
+                  )}
                 </div>
 
                 {/* Reporter */}
@@ -218,6 +255,36 @@ export function TaskDetailPanel({
                   <p className="text-sm font-medium">
                     {sprint?.name || "No sprint assigned"}
                   </p>
+                </div>
+
+                {/* Tags */}
+                <div className="col-span-2">
+                  <h4 className="text-xs font-medium text-muted-foreground mb-1 flex items-center gap-1">
+                    <Tag className="h-3 w-3" />
+                    Tags ({taskTags.length})
+                  </h4>
+                  {taskTags.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {taskTags.map((tag) => (
+                        <Badge
+                          key={tag._id.toString()}
+                          variant="outline"
+                          style={{
+                            backgroundColor: `${tag.color}15`,
+                            borderColor: tag.color,
+                            color: tag.color,
+                          }}
+                          className="text-xs font-medium"
+                        >
+                          {tag.name}
+                        </Badge>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="text-sm text-muted-foreground">
+                      No tags
+                    </span>
+                  )}
                 </div>
 
                 {/* Due Date */}
@@ -273,9 +340,19 @@ export function TaskDetailPanel({
                     </h3>
                     <div className="space-y-2">
                       {childrenTasks.map((childTask) => {
-                        const childAssignee = childTask.assigneeId
-                          ? users.get(childTask.assigneeId.toString())
-                          : null;
+                        // Get child assignees (support both old and new)
+                        const childAssignees =
+                          childTask.assigneeIds &&
+                          childTask.assigneeIds.length > 0
+                            ? (childTask.assigneeIds
+                                .map((id) => users.get(id.toString()))
+                                .filter(Boolean) as UserType[])
+                            : childTask.assigneeId
+                            ? ([
+                                users.get(childTask.assigneeId.toString()),
+                              ].filter(Boolean) as UserType[])
+                            : [];
+
                         return (
                           <Card
                             key={childTask._id.toString()}
@@ -310,10 +387,12 @@ export function TaskDetailPanel({
                                         {childTask.storyPoints} SP
                                       </span>
                                     )}
-                                    {childAssignee && (
+                                    {childAssignees.length > 0 && (
                                       <span className="flex items-center gap-1">
                                         <User className="h-3 w-3" />
-                                        {childAssignee.name}
+                                        {childAssignees.length === 1
+                                          ? childAssignees[0].name
+                                          : `${childAssignees.length} assignees`}
                                       </span>
                                     )}
                                   </div>

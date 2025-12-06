@@ -14,6 +14,7 @@ import {
   useDeleteTask,
   useUpdateTask,
   useUsers,
+  useTags,
 } from "@/hooks/pm";
 import { useProject } from "@/hooks/projects";
 import { Plus, AlertCircle } from "lucide-react";
@@ -36,6 +37,9 @@ export default function BacklogPage({ params }: BacklogPageProps) {
 
   // Fetch users for assignment
   const { users } = useUsers();
+
+  // Fetch tags for the project
+  const { tags } = useTags(projectId);
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<TaskStatus | "all">("all");
@@ -299,6 +303,7 @@ export default function BacklogPage({ params }: BacklogPageProps) {
           projectId={projectId}
           currentUserId={userId || ""}
           users={users}
+          tags={tags}
           availableTasks={tasks}
           mode="edit"
         />

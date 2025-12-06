@@ -10,6 +10,7 @@ import {
   useDeleteTask,
   useTasks,
   useUsers,
+  useTags,
 } from "@/hooks/pm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -43,6 +44,7 @@ export default function TaskDetailPage({ params }: TaskDetailPageProps) {
   const { task, isLoading, error, mutate } = useTask(taskId);
   const { tasks: allTasks } = useTasks(projectId, {});
   const { users } = useUsers();
+  const { tags } = useTags(projectId);
   const { trigger: updateTask } = useUpdateTask(taskId);
   const { trigger: deleteTask } = useDeleteTask(taskId);
 
@@ -422,6 +424,7 @@ export default function TaskDetailPage({ params }: TaskDetailPageProps) {
           projectId={projectId}
           currentUserId={userId || ""}
           users={users}
+          tags={tags}
           availableTasks={allTasks}
           mode="edit"
         />

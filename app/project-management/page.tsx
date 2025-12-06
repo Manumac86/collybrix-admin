@@ -215,7 +215,7 @@ export default function ProjectManagementPage() {
 
   return (
     <div className="flex-1 overflow-auto">
-      <div className="max-w-7xl mx-auto p-8 space-y-8">
+      <div className="mx-auto p-8 space-y-8">
         {/* Header */}
         <div>
           <h1 className="text-4xl font-bold text-foreground mb-2">

@@ -23,6 +23,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { MultiSelect } from "@/components/ui/multi-select";
+import type { MultiSelectOption } from "@/components/ui/multi-select";
 import { taskCreateSchema } from "@/lib/validation/pm-schemas";
 import {
   TASK_TYPES,
@@ -30,8 +32,8 @@ import {
   TASK_STATUSES,
   STORY_POINTS,
 } from "@/types/pm";
-import type { Task, User } from "@/types/pm";
-import { Loader2, Plus, X } from "lucide-react";
+import type { Task, User, Tag } from "@/types/pm";
+import { Loader2, Plus, X, UserCircle, Tag as TagIcon } from "lucide-react";
 
 // Generate a UUID v4
 const generateId = () => {
@@ -50,6 +52,7 @@ interface TaskDialogProps {
   projectId: string;
   currentUserId: string;
   users?: User[];
+  tags?: Tag[]; // Available tags for the project
   availableTasks?: Task[]; // For parent task selection
   mode?: "create" | "edit";
 }
@@ -61,7 +64,8 @@ const formSchema = z.object({
   priority: z.enum(TASK_PRIORITIES),
   status: z.enum(TASK_STATUSES),
   storyPoints: z.string().optional(),
-  assigneeId: z.string().optional(),
+  assigneeIds: z.array(z.string()).default([]), // Changed to array for multiple assignees
+  tags: z.array(z.string()).default([]), // Tags as array of ObjectIds
   parentId: z.string().optional(),
   dueDate: z.string().optional(),
   acceptanceCriteria: z.array(
@@ -83,6 +87,7 @@ export function TaskDialog({
   projectId,
   currentUserId,
   users = [],
+  tags = [],
   availableTasks = [],
   mode = "create",
 }: TaskDialogProps) {
@@ -116,7 +121,8 @@ export function TaskDialog({
           priority: task.priority,
           status: task.status,
           storyPoints: task.storyPoints?.toString() ?? "none",
-          assigneeId: task.assigneeId?.toString() ?? "unassigned",
+          assigneeIds: task.assigneeIds || (task.assigneeId ? [task.assigneeId] : []), // Support both old and new
+          tags: task.tags?.map((t) => t.toString()) || [],
           parentId: task.parentId?.toString() ?? "none",
           dueDate: task.dueDate
             ? new Date(task.dueDate).toISOString().split("T")[0]
@@ -130,7 +136,8 @@ export function TaskDialog({
           priority: "medium",
           status: "backlog",
           storyPoints: "none",
-          assigneeId: "unassigned",
+          assigneeIds: [],
+          tags: [],
           parentId: "none",
           dueDate: "",
           acceptanceCriteria: [],
@@ -140,11 +147,6 @@ export function TaskDialog({
   const handleFormSubmit = async (data: FormData) => {
     setIsSubmitting(true);
     try {
-      // Convert "unassigned" placeholder back to null
-      const assigneeId =
-        data.assigneeId === "unassigned" || !data.assigneeId
-          ? null
-          : data.assigneeId;
       const parentId =
         data.parentId === "none" || !data.parentId ? null : data.parentId;
 
@@ -162,11 +164,11 @@ export function TaskDialog({
           data.storyPoints !== ""
             ? data.storyPoints
             : null,
-        assigneeId,
+        assigneeIds: data.assigneeIds || [], // Array of assignee IDs
+        tags: data.tags || [], // Array of tag IDs
         parentId,
         dueDate: data.dueDate ? new Date(data.dueDate) : null,
         acceptanceCriteria,
-        tags: task?.tags ?? [],
         attachments: task?.attachments ?? [],
         dependencies: task?.dependencies ?? [],
         sprintId: task?.sprintId ?? null,
@@ -334,36 +336,47 @@ export function TaskDialog({
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1">
-                <Label htmlFor="assigneeId">Assignee</Label>
-                <Select
-                  value={watch("assigneeId") || "unassigned"}
-                  onValueChange={(value) =>
-                    setValue("assigneeId", value === "unassigned" ? "" : value)
-                  }
-                >
-                  <SelectTrigger id="assigneeId">
-                    <SelectValue placeholder="Unassigned" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="unassigned">Unassigned</SelectItem>
-                    {users.map((user) => (
-                      <SelectItem
-                        key={user._id.toString()}
-                        value={user._id.toString()}
-                      >
-                        {user.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="flex flex-col gap-1">
+              <Label htmlFor="assigneeIds">Assignees</Label>
+              <MultiSelect
+                options={users.map((user) => ({
+                  label: user.name,
+                  value: user._id.toString(),
+                  icon: UserCircle,
+                }))}
+                selected={watch("assigneeIds") || []}
+                onChange={(values) => setValue("assigneeIds", values)}
+                placeholder="Select assignees..."
+                searchPlaceholder="Search users..."
+                emptyText="No users found."
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                You can assign multiple team members to this task
+              </p>
+            </div>
 
-              <div className="flex flex-col gap-1">
-                <Label htmlFor="dueDate">Due Date</Label>
-                <Input id="dueDate" type="date" {...register("dueDate")} />
-              </div>
+            <div className="flex flex-col gap-1">
+              <Label htmlFor="tags">Tags</Label>
+              <MultiSelect
+                options={tags.map((tag) => ({
+                  label: tag.name,
+                  value: tag._id.toString(),
+                  icon: TagIcon,
+                }))}
+                selected={watch("tags") || []}
+                onChange={(values) => setValue("tags", values)}
+                placeholder="Select tags..."
+                searchPlaceholder="Search tags..."
+                emptyText="No tags found."
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Tags help categorize and filter tasks
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <Label htmlFor="dueDate">Due Date</Label>
+              <Input id="dueDate" type="date" {...register("dueDate")} />
             </div>
 
             {/* Parent Task Selection */}
