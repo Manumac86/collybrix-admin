@@ -130,14 +130,18 @@ function KanbanColumnComponent({
               </div>
             ) : (
               tasks.map((task) => {
-                const assignee = task.assigneeId
-                  ? users.get(task.assigneeId.toString())
-                  : null;
+                // Get all assignees (support both old assigneeId and new assigneeIds)
+                const assignees = task.assigneeIds && task.assigneeIds.length > 0
+                  ? task.assigneeIds.map(id => users.get(id.toString())).filter(Boolean) as User[]
+                  : task.assigneeId
+                  ? [users.get(task.assigneeId.toString())].filter(Boolean) as User[]
+                  : [];
+
                 return (
                   <KanbanCard
                     key={task._id.toString()}
                     task={task}
-                    assignee={assignee}
+                    assignees={assignees}
                     onClick={() => onTaskClick(task)}
                   />
                 );
