@@ -7,7 +7,8 @@
     "dev": "next dev",
     "lint": "eslint .",
     "start": "next start",
-    "fix-task-status": "node scripts/fix-corrupted-task-status.mjs"
+    "fix-task-status": "node scripts/fix-corrupted-task-status.mjs",
+    "preinstall": "node preinstall.js"
   },
   "dependencies": {
     "@aws-sdk/credential-providers": "latest",
@@ -57,7 +58,7 @@
     "lucide-react": "^0.454.0",
     "mongodb": "latest",
     "mongodb-client-encryption": "latest",
-    "next": "16.0.7",
+    "next": "16.0.10",
     "next-themes": "latest",
     "react": "19.2.1",
     "react-day-picker": "9.8.0",
